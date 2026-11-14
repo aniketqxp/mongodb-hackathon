@@ -56,8 +56,9 @@ class ConfirmIn(BaseModel):
 @app.post("/directives/compile")
 def compile_route(body: CompileIn):
     b = load_bundle(body.pack_id)
-    d = compile_directive(body.text, b.pack, b.vocab, known_ids=b.known_ids(body.scope_id))
-    return {"directive": d.model_dump(), "summary": describe(d, b.pack)}
+    ids = b.known_ids(body.scope_id)
+    d = compile_directive(body.text, b.pack, b.vocab, known_ids=ids)
+    return {"directive": d.model_dump(), "summary": describe(d, b.pack, ids)}
 
 
 @app.post("/directives/confirm")
