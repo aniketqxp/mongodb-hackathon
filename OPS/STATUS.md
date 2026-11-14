@@ -3,8 +3,8 @@
 One line per package. Update at each milestone. Format: `ID | owner | state | note | updated`.
 States: `todo`, `doing`, `blocked`, `done`.
 
-G1 | Greatness | doing | bundle prepared, awaiting push access | 14:00
-G2 | Greatness | todo | | 
+G1 | Greatness | done | merged to main; get_llm() untested until Groq key | 14:30
+G2 | Greatness | done | catalog(200), pack, scopes, seed graph + scenario in data/; live load waits on A1 indexes + history/ledger naming | 14:45
 G3 | Greatness | todo | go/no-go 15:00 | 
 A1 | Aniket | todo | | 
 A2 | Aniket | todo | | 
