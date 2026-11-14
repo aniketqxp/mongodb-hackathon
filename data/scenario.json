@@ -1,0 +1,11 @@
+{
+  "scope_id": "child_7",
+  "retract": "node_child_7_interest_spooky",
+  "expect_invalidate_and_replay": [
+    "dec_child_7_02",
+    "dec_child_7_03"
+  ],
+  "expect_preserve_independent_support": [
+    "dec_child_7_08"
+  ]
+}

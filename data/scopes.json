@@ -1,0 +1,12 @@
+[
+  {
+    "scope_id": "child_7",
+    "label": "Child A (7)",
+    "max_maturity": 1
+  },
+  {
+    "scope_id": "child_12",
+    "label": "Child B (12)",
+    "max_maturity": 2
+  }
+]

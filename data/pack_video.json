@@ -1,0 +1,43 @@
+{
+  "pack_id": "pack_video_demo",
+  "scope_field": "scope_id",
+  "node_types": [
+    "watch_fact",
+    "interest",
+    "decision_input"
+  ],
+  "edge_types": [
+    {
+      "rel": "supports",
+      "from": "watch_fact",
+      "to": "interest"
+    },
+    {
+      "rel": "used_in",
+      "from": "interest",
+      "to": "decision"
+    }
+  ],
+  "gate": [
+    {
+      "field": "maturity",
+      "op": "lte",
+      "value": null,
+      "value_from_scope": "max_maturity"
+    }
+  ],
+  "decay": {
+    "kind": "ttl",
+    "seconds": 1209600
+  },
+  "directive_vocab": [
+    "suppress",
+    "prioritize",
+    "retract"
+  ],
+  "labels": {
+    "item": "video",
+    "scope": "child",
+    "directive": "parent rule"
+  }
+}

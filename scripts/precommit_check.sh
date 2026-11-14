@@ -22,7 +22,7 @@ if [ -d core ]; then
 fi
 
 echo "== 3. tests"
-if ls tests core/tests eval/tests 2>/dev/null | grep -q .; then
+if ls tests core/tests eval/tests data/tests 2>/dev/null | grep -q .; then
   python -m pytest -q 2>&1 | tail -5 || fail=1
 else echo "no tests yet"; fi
 
