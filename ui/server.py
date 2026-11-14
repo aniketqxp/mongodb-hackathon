@@ -25,6 +25,8 @@ UI_PORT = int(os.environ.get("UI_PORT", "8080"))
 API = CoreApi()
 # D1's directive compiler service. It owns the PIN check (DIRECTIVE_PIN) and the core trust header.
 COMPILER = CoreApi(base=os.environ.get("COMPILER_URL") or "http://127.0.0.1:8002", timeout=60)
+# Parent-only UI: the server holds the parent PIN and passes it to the compiler on "Save rule".
+PARENT_PIN = os.environ.get("DIRECTIVE_PIN", "")
 HARNESS = Harness(api=API)
 
 
@@ -95,14 +97,18 @@ class Handler(SimpleHTTPRequestHandler):
             return self._run(lambda: COMPILER._call("POST", "/directives/compile", {
                 "pack_id": HARNESS.pack_id, "scope_id": body["scope_id"], "text": body["text"]}))
 
-        # PIN-gated write. The compiler checks the PIN server-side, sets confirmed_by and
-        # calls the core with its trust header (CONTRACT section 8); this server never does.
+        # Confirmed write. This UI is parent-only, so the parent's "Save rule" click is the human
+        # confirmation and this server supplies DIRECTIVE_PIN from its env (never from the browser).
+        # The compiler still checks the PIN, sets confirmed_by and calls the core with its trust
+        # header (CONTRACT section 8); this server never posts to the core's /directives itself.
         if self.path == "/ui/confirm-directive":
             def confirm():
+                if not PARENT_PIN:
+                    raise ApiError("not_confirmed", "DIRECTIVE_PIN is not set for the UI server", 500)
                 scope_id = body["scope_id"]
                 directive = dict(body.get("directive") or {}, confirmed_by=None)
                 res = COMPILER._call("POST", "/directives/confirm", {
-                    "pack_id": HARNESS.pack_id, "scope_id": scope_id, "directive": directive, "pin": str(body.get("pin", ""))})
+                    "pack_id": HARNESS.pack_id, "scope_id": scope_id, "directive": directive, "pin": PARENT_PIN})
                 if directive.get("type") == "retract":
                     # Confirmed retract: run recall through the core's retraction route.
                     res["retract"] = HARNESS.retract(scope_id, directive["target"]["value"],
