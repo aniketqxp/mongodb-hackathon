@@ -51,7 +51,7 @@ flowchart TB
     LG["Ledger + why<br/>audit, provenance"]
   end
   PACK["Domain pack (data only, about 8 slots)<br/>node and edge types, gate predicate, decay curve,<br/>scope field, directive vocabulary, UI labels"]
-  ATLAS[("MongoDB Atlas sandbox<br/>events, nodes, edges, decisions, directives, ledger, packs<br/>Vector Search · $graphLookup · TTL")]
+  ATLAS[("MongoDB Atlas sandbox<br/>events, nodes, edges, decisions, directives, history, packs<br/>Vector Search · $graphLookup · TTL")]
   H --> API
   C --> API
   API --> CORE
@@ -73,13 +73,13 @@ Seven generic collections hold everything. None has a domain word in its name or
 | `edges` | Typed dependencies, memory → decision | `from`, `to`, `rel`, `pack_id`, `scope_id` | `from`, `to` (for `$graphLookup`) |
 | `decisions` | Actions the agent took (a slate, a ranking) with the node ids they used | `pack_id`, `scope_id`, `inputs[]`, `output`, `status`, `replay_of` | `(scope_id, ts)` |
 | `directives` | Typed policies: suppress, prioritize, retract | `pack_id`, `scope_id`, `type`, `target`, `expires_at`, `cap`, `confirmed_by` | `(scope_id, type)`; TTL on `expires_at` |
-| `ledger` | Audit record of every governance action | `actor`, `action`, `target`, `before`, `after`, `ts` | `(scope_id, ts)` |
+| `history` | Audit record of every governance action (served by `GET /ledger`) | `actor`, `action`, `target`, `before`, `after`, `ts` | `(scope_id, ts)` |
 | `packs` | Domain packs: data-only config | `pack_id`, `slots`, `status` (`draft` / `active`), `conformance` result | `pack_id` unique |
 
 **Rules**
 
 - Every read and write is filtered by `pack_id` and `scope_id`. The vector search pre-filters on scope, so a query never sees another scope's vectors.
-- Memory states are `active`, `quarantined`, `invalidated`, `expired`. Nothing is hard-deleted without a ledger entry.
+- Memory states are `active`, `quarantined`, `invalidated`, `expired`. Nothing is hard-deleted without a `history` entry.
 - Embeddings use Voyage `voyage-4-lite`. The sandbox's token allowance is for Voyage embedding and rerank only, not for chat LLMs.
 - TTL indexes remove expired nodes and directives. The retraction planner also runs on expiry, so dependents of an expired memory are recalled the same way as for a manual retraction.
 
@@ -93,7 +93,7 @@ When one memory is wrong, expired or unwanted, recall finds every decision that 
 2. **Independent-support check.** For each affected decision, ask whether it still has at least one supporting node outside the provenance set. If yes, it is *preserved*. If no, it is a rollback candidate. The check is deliberately lenient, as the paper's own limits suggest.
 3. **Plan.** Rules map each affected item to one action: `delete` (the faulty node), `quarantine` (derived beliefs awaiting review), `invalidate` (decisions that lost all support), `replay` (decisions to recompute), or `preserve`.
 4. **Replay.** Recompute only the invalidated decisions, with the faulty node excluded, and write new decisions with `replay_of` pointing at the old ones.
-5. **Ledger.** Every action is written to `ledger`, and the "why" API can answer "why was this recommended?" and "what did retracting X change?" from it.
+5. **Ledger.** Every action is written to `history`, and the "why" API can answer "why was this recommended?" and "what did retracting X change?" from it.
 
 **Output of a plan** (JSON, identical for the Python reference and the Rust crate):
 
@@ -336,7 +336,7 @@ The track asks us to prove memory changed behavior. D3 (David) produces that pro
 - A LangSmith dataset of 25 prompts (parent sentences, retractions, gated items).
 - Each run is traced twice, with memory and without, and the slate diff is stored as the evidence.
 - The headline test is **retract one**: remove a single memory, then show that only its dependents changed and independently supported items did not.
-- Every governance action is also in `ledger`, so the evidence does not depend on LangSmith retention (14 days on the free plan).
+- Every governance action is also in `history`, so the evidence does not depend on LangSmith retention (14 days on the free plan).
 
 **Demo script (J3), in order**
 
@@ -364,7 +364,7 @@ The track asks us to prove memory changed behavior. D3 (David) produces that pro
 
 - [x] `.gitignore`, scaffold, contract v0.1 and mock API merged (G1).
 - [ ] Aniket: require `X-Compiler-Key` on core `POST /directives` and read `max_maturity` from the `scope_profile` event (A3).
-- [ ] Decide `history` vs `ledger` for the audit collection (the Atlas sandbox currently has `history`).
+- [x] Audit collection is named `history` (matches the Atlas sandbox); the API keeps `GET /ledger`.
 - [ ] Buy the $10 OpenRouter credit with a spend cap (not blocking; before 3:00 PM).
 - [ ] A teammate runs one `with_structured_output` call on Groq `gpt-oss-120b` to confirm strict JSON works.
 - [ ] Check the participant guide's partner-resources section for extra credits.

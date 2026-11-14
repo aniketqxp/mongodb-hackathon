@@ -4,7 +4,7 @@ One line per package. Update at each milestone. Format: `ID | owner | state | no
 States: `todo`, `doing`, `blocked`, `done`.
 
 G1 | Greatness | done | merged to main; get_llm() verified on Groq gpt-oss-120b | 14:30
-G2 | Greatness | done | catalog(200), pack, scopes, seed graph + scenario in data/; live load waits on A1 indexes + history/ledger naming | 14:45
+G2 | Greatness | done | catalog(200), pack, scopes, seed graph + scenario in data/; live load waits on A1 indexes (audit collection is `history`, decided 15:20) | 14:45
 G3 | Greatness | todo | go/no-go 15:00; waits on A2 fixtures | 
 A1 | Aniket | todo | | 
 A2 | Aniket | todo | | 
