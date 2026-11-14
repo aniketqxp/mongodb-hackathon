@@ -12,6 +12,6 @@ A3 | Aniket | todo | target ~15:00 |
 D1 | David | todo | | 
 D2 | David | todo | | 
 D3 | David | todo | | 
-J1 | Jasmine | todo | | 
-J2 | Jasmine | todo | | 
+J1 | Jasmine | doing | UI on J2 harness + G2 data vs mock: child switch, feed, PIN rule (block/boost), gate probe, un-recommend keeps independently supported items, why-this. Needs D1 compile route, A3 | 14:51
+J2 | Jasmine | doing | harness/: generic gate, gate>block>boost, slate gen, decisions per item, 13 unit tests. Seed memory until real /memory/search | 14:51
 J3 | Jasmine | todo | | 
