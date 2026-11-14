@@ -34,7 +34,7 @@ KnownIds = Iterable[str] | Mapping[str, str]  # retractable ids in this scope (o
 
 
 class DirectiveError(Exception):
-    """Carries a contract error code: bad_request | not_found | not_confirmed | internal."""
+    """Carries a contract error code: bad_request | not_found | not_confirmed | forbidden | internal."""
 
     def __init__(self, code: str, detail: str):
         super().__init__(f"{code}: {detail}")
@@ -327,9 +327,12 @@ def submit_directive(
 
     url = (base_url or os.getenv("CORE_API_URL", "http://localhost:8001")).rstrip("/") + "/directives"
     body = {"pack_id": pack.pack_id, "scope_id": scope_id, "directive": d.model_dump()}
+    # CONTRACT section 8: core only trusts confirmed directives that carry the compiler's shared secret.
+    secret = os.getenv("COMPILER_SHARED_SECRET", "")
+    headers = {"X-Compiler-Key": secret} if secret else {}
     http = client or httpx.Client(timeout=10)
     try:
-        r = http.post(url, json=body)
+        r = http.post(url, json=body, headers=headers)
     except httpx.HTTPError as e:
         raise DirectiveError("internal", f"core unreachable: {type(e).__name__}") from None
     finally:
