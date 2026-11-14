@@ -58,3 +58,15 @@ def test_extra_body_fields_rejected(client):
 def test_unknown_scope_rejected(client):
     r = client.post("/directives/compile", json={"pack_id": "pack_video_demo", "scope_id": "child_99", "text": "no spooky"})
     assert r.status_code == 404 and r.json()["error"]["code"] == "not_found"
+
+
+def test_pack_compile_route_falls_back_without_llm(client, monkeypatch, tmp_path):
+    import shutil
+
+    from compiler import pack as pk
+
+    shutil.copytree(pk.REPO / "compiler" / "pack_cache", tmp_path / "c")
+    monkeypatch.setenv("PACK_CACHE_DIR", str(tmp_path / "c"))
+    monkeypatch.setenv("PACK_LLM_MAX_CALLS", "0")
+    r = client.post("/packs/compile", json={"sentence": "team notes memory"})
+    assert r.status_code == 200 and r.json()["source"] == "fallback"

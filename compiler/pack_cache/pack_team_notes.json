@@ -1,0 +1,22 @@
+{
+ "sentence": "A team memory assistant that remembers meeting notes per team, never stores anything above the team's clearance, and forgets notes after 30 days",
+ "pack": {
+  "pack_id": "pack_team_notes",
+  "scope_field": "team_id",
+  "node_types": ["note", "topic_interest"],
+  "edge_types": [
+   {"rel": "mentions", "from": "note", "to": "topic_interest"},
+   {"rel": "informs", "from": "topic_interest", "to": "decision"},
+   {"rel": "cited_by", "from": "note", "to": "decision"}
+  ],
+  "gate": [
+   {"field": "sensitivity", "op": "lte", "value": null, "value_from_scope": "clearance"},
+   {"field": "visibility", "op": "in", "value": ["team", "org"], "value_from_scope": null}
+  ],
+  "decay": {"kind": "ttl", "seconds": 2592000},
+  "directive_vocab": ["suppress", "prioritize", "retract"],
+  "labels": {"item": "note", "scope": "team", "directive": "team rule"}
+ },
+ "conformance": null,
+ "saved_at": "2026-11-14T15:00:00Z"
+}

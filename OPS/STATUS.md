@@ -11,7 +11,7 @@ A2 | Aniket | done (local, uncommitted) | core/planner.py + engine.py: provenanc
 A3 | Aniket | done (local, uncommitted) | core/api.py: every mock route, same shapes, port 8001 (`uvicorn core.api:app --port 8001`); X-Compiler-Key enforced | 15:30
 A4 | Aniket | done (local, uncommitted) | core/conformance.py: 5/5 provenance on pack_video_demo + pack_team_docs; label_only 4/5 (fails check 1) | 15:30
 D1 | David | done | directive compiler on real data/ pack (pack_video_demo); gate fields (maturity) not directable; PIN gate; 25-prompt set in eval/directive_prompts.json; 100 tests pass offline; :8002 UI routes pending contract; live LLM untested (no key) | 14:45
-D2 | David | todo | | 
+D2 | David | done | pack compiler + cached fallback (compiler/pack.py), 5-check conformance suite (compiler/conformance.py), second pack pack_team_notes; suite 5/5 on reference core, each injected bug caught; mock scores 1/5 (canned); live A3 run and live LLM pending (conventions in BLOCKERS) | 15:03
 D3 | David | todo | | 
 J1 | Jasmine | doing | UI on J2 harness + G2 data vs mock: child switch, feed, PIN rule (block/boost), gate probe, un-recommend keeps independently supported items, why-this. Needs D1 compile route, A3 | 14:51
 J2 | Jasmine | doing | harness/: generic gate, gate>block>boost, slate gen, decisions per item, 13 unit tests. Seed memory until real /memory/search | 14:51

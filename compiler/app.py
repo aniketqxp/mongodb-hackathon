@@ -2,6 +2,8 @@
 
 POST /directives/compile  {pack_id, scope_id, text}             -> {directive, summary}
 POST /directives/confirm  {pack_id, scope_id, directive, pin}   -> core POST /directives response
+POST /packs/compile       {sentence}                            -> {pack, source, reason, sentence}
+  (then the UI registers it with core POST /packs, runs /packs/{id}/conformance, and activates at 5/5)
 
 The PIN is checked here, server-side, and the directive is re-validated before it reaches core.
 Pack, target vocab, scopes and retractable ids load from data/ (COMPILER_DATA_DIR), see compiler/packs.py.
@@ -15,6 +17,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict
 
 from compiler.directive import DirectiveError, PinGate, compile_directive, describe, submit_directive, validate_directive
+from compiler.pack import compile_pack
 from compiler.packs import load_bundle
 
 app = FastAPI(title="directive-compiler", version="0.1")
@@ -65,3 +68,13 @@ def confirm_route(body: ConfirmIn):
     d = validate_directive({**body.directive, "confirmed_by": None}, b.pack, b.vocab, known_ids=ids)
     d = gate.confirm(d, body.pin, scope_id=body.scope_id)
     return submit_directive(d, b.pack, body.scope_id, b.vocab, known_ids=ids)
+
+
+class PackIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    sentence: str
+
+
+@app.post("/packs/compile")
+def pack_compile_route(body: PackIn):
+    return compile_pack(body.sentence)
