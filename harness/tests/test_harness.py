@@ -32,6 +32,10 @@ class FakeApi:
     def diff(self, pack_id, scope_id, retract):
         return {"before": [], "after": [], "changed": [], "preserved": []}
 
+    def list_directives(self, pack_id, scope_id, active_only=True):
+        return [{"directive_id": "dir_api", "type": "suppress", "target": {"kind": "tag", "value": "scary"},
+                 "expires_at": FUTURE, "cap": None, "confirmed_by": "pin", "status": "active"}]
+
 
 def slate(scope, directives=(), previous=(), mem=None):
     mem = mem or SeedMemory()
@@ -113,6 +117,15 @@ class SlateTests(unittest.TestCase):
 
 
 class ServiceTests(unittest.TestCase):
+    def test_directives_from_api(self):
+        out = Harness(api=FakeApi(), memory="seed", directives="api").feed("child_7")
+        self.assertFalse([e for e in out["slate"] if "scary" in e["tags"]])
+        self.assertTrue(all(s["directive_id"] == "dir_api" for s in out["receipt"]["suppressed"]))
+
+    def test_local_directives_by_default(self):
+        out = Harness(api=FakeApi(), memory="seed").feed("child_7")
+        self.assertTrue([e for e in out["slate"] if "scary" in e["tags"]])
+
     def test_feed_records_decisions_with_supports(self):
         api = FakeApi()
         out = Harness(api=api, memory="seed").feed("child_7")

@@ -1,7 +1,7 @@
 """J1 UI server: serves ui/static, runs the J2 harness, and proxies /api/* to the core API.
 
 Run:  python3 ui/server.py            (UI on :8080, core API at http://127.0.0.1:8001)
-Env:  API_BASE, UI_PORT, DEMO_PIN, HARNESS_MEMORY (seed|api)
+Env:  API_BASE, COMPILER_URL, UI_PORT, HARNESS_MEMORY (seed|api), HARNESS_DIRECTIVES (local|api)
 
 Stdlib only. The browser talks only to this server, which avoids CORS and lets us swap
 mock -> real API with one env var.
@@ -21,10 +21,10 @@ from harness.service import Harness  # noqa: E402
 
 STATIC = os.path.join(HERE, "static")
 UI_PORT = int(os.environ.get("UI_PORT", "8080"))
-# Demo gate only, not real authentication (see docs/TECHNICAL_DOCUMENTATION.md, section 8).
-DEMO_PIN = os.environ.get("DEMO_PIN", "1234")
 
 API = CoreApi()
+# D1's directive compiler service. It owns the PIN check (DIRECTIVE_PIN) and the core trust header.
+COMPILER = CoreApi(base=os.environ.get("COMPILER_URL") or "http://127.0.0.1:8002", timeout=60)
 HARNESS = Harness(api=API)
 
 
@@ -66,7 +66,8 @@ class Handler(SimpleHTTPRequestHandler):
             cat = data.catalog()
             vocab = {"topic": sorted({v["topic"] for v in cat}), "tag": sorted({t for v in cat for t in v["tags"]})}
             return self._send(200, {"pack_id": HARNESS.pack_id, "scopes": HARNESS.scopes(), "labels": data.pack().get("labels", {}),
-                                    "api_base": API.base, "memory_source": HARNESS.memory.name, "vocab": vocab})
+                                    "api_base": API.base, "compiler_url": COMPILER.base,
+                                    "memory_source": HARNESS.memory.name, "directive_source": HARNESS.directive_source, "vocab": vocab})
         if url.path == "/ui/feed":
             def feed():
                 if q.get("reset"):
@@ -89,19 +90,25 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path == "/ui/retract":
             return self._run(lambda: HARNESS.retract(body["scope_id"], body["target_id"], body.get("reason", "parent_retract")))
 
-        # PIN-gated write: the browser never sets confirmed_by itself.
-        if self.path == "/ui/confirm-directive":
-            if str(body.get("pin", "")) != DEMO_PIN:
-                return self._send(403, _error("not_confirmed", "wrong PIN"))
+        # Parent sentence -> unconfirmed directive, via D1's compiler (CONTRACT v0.2, port 8002).
+        if self.path == "/ui/compile":
+            return self._run(lambda: COMPILER._call("POST", "/directives/compile", {
+                "pack_id": HARNESS.pack_id, "scope_id": body["scope_id"], "text": body["text"]}))
 
+        # PIN-gated write. The compiler checks the PIN server-side, sets confirmed_by and
+        # calls the core with its trust header (CONTRACT section 8); this server never does.
+        if self.path == "/ui/confirm-directive":
             def confirm():
                 scope_id = body["scope_id"]
-                directive = dict(body.get("directive") or {}, confirmed_by="pin")
+                directive = dict(body.get("directive") or {}, confirmed_by=None)
+                res = COMPILER._call("POST", "/directives/confirm", {
+                    "pack_id": HARNESS.pack_id, "scope_id": scope_id, "directive": directive, "pin": str(body.get("pin", ""))})
                 if directive.get("type") == "retract":
-                    res = HARNESS.retract(scope_id, directive["target"]["value"], "directive:" + directive.get("source_text", ""))
-                    return {"directive_id": None, "status": "retracted", "retract": res}
-                res = API._call("POST", "/directives", {"pack_id": HARNESS.pack_id, "scope_id": scope_id, "directive": directive})
-                HARNESS.remember_directive(scope_id, directive, res["directive_id"])
+                    # Confirmed retract: run recall through the core's retraction route.
+                    res["retract"] = HARNESS.retract(scope_id, directive["target"]["value"],
+                                                     "directive:" + directive.get("source_text", ""))
+                else:
+                    HARNESS.remember_directive(scope_id, dict(directive, confirmed_by="pin"), res["directive_id"])
                 return res
             return self._run(confirm)
 
@@ -109,5 +116,6 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print("[ui] http://127.0.0.1:%d  ->  API %s  (pack=%s, memory=%s)" % (UI_PORT, API.base, HARNESS.pack_id, HARNESS.memory.name))
+    print("[ui] http://127.0.0.1:%d  ->  API %s, compiler %s  (pack=%s, memory=%s, directives=%s)"
+          % (UI_PORT, API.base, COMPILER.base, HARNESS.pack_id, HARNESS.memory.name, HARNESS.directive_source))
     ThreadingHTTPServer(("127.0.0.1", UI_PORT), Handler).serve_forever()

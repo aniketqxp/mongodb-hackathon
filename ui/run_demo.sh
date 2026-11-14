@@ -41,7 +41,7 @@ set -a; . ./.env; set +a
 : "${API_BASE:=$CORE_API_URL}"
 export COMPILER_DATA_DIR CORE_API_URL API_BASE
 [ -n "${DIRECTIVE_PIN:-}" ] || die "DIRECTIVE_PIN is empty in .env; the compiler would reject every PIN"
-export DEMO_PIN="${DEMO_PIN:-$DIRECTIVE_PIN}"   # UI fallback PIN matches the compiler's
+export COMPILER_URL="${COMPILER_URL:-http://127.0.0.1:8002}"   # the compiler checks DIRECTIVE_PIN
 [ -n "${GROQ_API_KEY:-}${OPENROUTER_API_KEY:-}" ] || warn "No GROQ_API_KEY/OPENROUTER_API_KEY: sentence parsing will fail; use the manual slots"
 
 USE_MOCK=0

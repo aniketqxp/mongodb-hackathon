@@ -51,6 +51,10 @@ class CoreApi:
     def record_decision(self, pack_id, scope_id, inputs, output):
         return self._call("POST", "/decisions", {"pack_id": pack_id, "scope_id": scope_id, "inputs": inputs, "output": output})["decision_id"]
 
+    def list_directives(self, pack_id, scope_id, active_only=True):
+        q = {"pack_id": pack_id, "scope_id": scope_id, "active_only": "true" if active_only else "false"}
+        return self._call("GET", "/directives", query=q)["directives"]
+
     def retract(self, pack_id, scope_id, target_id, reason):
         return self._call("POST", "/retract", {"pack_id": pack_id, "scope_id": scope_id, "target_id": target_id, "reason": reason})
 

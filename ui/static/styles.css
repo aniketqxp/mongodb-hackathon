@@ -92,6 +92,7 @@ summary { cursor: pointer; color: var(--muted); }
 .card-box input, .card-box select { background: var(--panel); }
 .box-head { display: flex; justify-content: space-between; align-items: center; }
 .tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--warn-bg); }
+.tag.ok { background: var(--good-bg); color: var(--good); }
 .row { display: flex; flex-wrap: wrap; gap: 8px; }
 .row > label { flex: 1 1 120px; }
 .confirm { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; }

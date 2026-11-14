@@ -233,16 +233,49 @@ function syncDirectiveForm() {
   $("#d-plain").textContent = plainWords(draftDirective());
 }
 
-function openDirective() {
-  if (!$("#parent-text").value.trim()) { toast("Type an instruction first."); return; }
-  // CONTRACT v0.1 has no route for D1's compiler yet (OPS/BLOCKERS.md), so the parent fills the
-  // typed slots. Swap this for the compiler call when it lands; the PIN step stays.
-  $("#compiler-note").textContent = "The sentence compiler (D1) is not connected yet, so pick the slots yourself. Nothing is saved until you confirm with the PIN.";
-  if (!$("#d-exp").value) $("#d-exp").value = nextSundayLocal();
+function toLocalInput(iso) {
+  const d = new Date(iso);
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function fillSlots(d) {
+  $("#d-type").value = d.type;
+  if (d.type !== "retract") $("#d-kind").value = d.target.kind;
+  $("#d-value").value = d.target.value;
+  $("#d-exp").value = d.expires_at ? toLocalInput(d.expires_at) : (d.type === "suppress" ? nextSundayLocal() : "");
+  if (d.type === "prioritize") $("#d-cap").value = d.cap || 1;
+}
+
+function setCompilerState(kind, note) {
+  const tag = $("#compiler-tag");
+  tag.textContent = kind === "llm" ? "parsed from your sentence" : "manual slots";
+  tag.className = `tag ${kind === "llm" ? "ok" : ""}`;
+  $("#compiler-note").textContent = note;
+}
+
+async function openDirective() {
+  const text = $("#parent-text").value.trim();
+  if (!text) { toast("Type an instruction first."); return; }
+  const btn = $("#parent-form button[type=submit]");
+  btn.disabled = true; btn.textContent = "Reading your instruction…";
   $("#d-pin").value = "";
+  try {
+    // D1's compiler (via ui/server.py): the LLM only fills typed slots; code validates them.
+    const r = await call("POST", "/ui/compile", { scope_id: S.scope, text });
+    fillSlots(r.directive);
+    setCompilerState("llm", "Check the slots. You can still change them. Nothing is saved until you confirm with the PIN.");
+  } catch (e) {
+    // Rejected or LLM unavailable: the parent can still fill the slots by hand; the same checks apply on confirm.
+    if (!$("#d-exp").value) $("#d-exp").value = nextSundayLocal();
+    const why = e.code === "internal" ? "The sentence reader is unavailable right now" : `That instruction was not accepted (${e.detail})`;
+    setCompilerState("manual", `${why}. Fill in the slots yourself; nothing is saved until you confirm with the PIN.`);
+  } finally {
+    btn.disabled = false; btn.textContent = "Parse instruction";
+  }
   $("#directive-form").hidden = false;
   syncDirectiveForm();
-  $("#d-value").focus();
+  $("#d-pin").focus();
 }
 
 async function confirmDirective(ev) {
@@ -254,7 +287,7 @@ async function confirmDirective(ev) {
   if (!pin) { toast("Enter the parent PIN to confirm."); return; }
   try {
     if (d.type === "retract") {
-      // Same PIN gate, then the normal retraction path.
+      // Same PIN gate (checked by the compiler), then the normal retraction path.
       await call("POST", "/ui/confirm-directive", { pin, scope_id: S.scope, directive: d });
       S.retracted.add(d.target.value);
       $("#directive-form").hidden = true;
@@ -279,7 +312,12 @@ async function confirmDirective(ev) {
     });
     toast("Rule confirmed. Feed updated.");
   } catch (e) {
-    if (e.status === 403) { toast("Wrong PIN. Nothing was saved."); $("#d-pin").select(); return; }
+    if (e.code === "not_confirmed") {
+      // The compiler locks the PIN for a few minutes after repeated wrong tries.
+      toast(/too many/i.test(e.detail) ? "Too many wrong PINs. Wait a few minutes." : "Wrong PIN. Nothing was saved.");
+      $("#d-pin").select();
+      return;
+    }
     addReceipt({ title: "Rule rejected", html: `<p>${esc(e.code)}: ${esc(e.detail)}</p>`, err: true });
   }
 }
