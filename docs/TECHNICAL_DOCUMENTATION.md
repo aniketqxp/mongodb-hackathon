@@ -219,9 +219,9 @@ A child's feed is built from watch memory. The parent can say, in plain words, w
 
 **Which LLM, and why not the sandbox:** the sandbox's token allowance covers Voyage embeddings and reranking only, so chat completions need another provider.
 
-- **Primary: Groq** `openai/gpt-oss-120b`. Strict structured output works on gpt-oss models via `method="json_schema"` (langchain-groq 0.3.8 or newer); it does not combine with streaming or tool use. Free limits are per organisation and published figures conflict (1,000 vs 14,400 requests a day), so trust the limits page in the Groq console.
+- **Primary: Groq** `openai/gpt-oss-120b`. Strict structured output works on gpt-oss models via `method="json_schema"` (langchain-groq 0.3.8 or newer); it does not combine with streaming or tool use. Verified limits from our Groq console (14 Nov): 30 requests a minute, 1,000 requests a day, **8,000 tokens a minute** and 200,000 tokens a day. `openai/gpt-oss-20b` shows the same limits as its own row, so it is a candidate overflow model (confirm that limits are tracked per model before relying on it).
 - **Fallback: OpenRouter.** OpenAI-compatible, so it is a base-URL swap. `:free` models are limited to 20 requests a minute and 50 a day, or 1,000 a day after a one-time purchase of at least $10 in credits. Free models can change or disappear without notice.
-- **Tokens bind before requests do.** At the sampled Groq limit of 200,000 tokens a day and about 2 to 3k tokens per compiler call, plan on roughly 70 to 80 calls a day (our estimate). Keep prompts compact, cache validated outputs, and reserve a fresh budget before judging.
+- **Tokens bind before requests do.** The 8,000 tokens a minute cap allows about 3 compiler calls a minute at 2 to 3k tokens each, so use short retry and backoff. The 200,000 daily tokens allow roughly 70 to 80 calls a day (our estimate). Keep prompts compact, cache validated outputs, and reserve a fresh budget before judging.
 
 **Environment variables** (in `.env`, never committed; `.env.example` with empty values is committed)
 
@@ -233,7 +233,7 @@ LLM_MODEL=openai/gpt-oss-120b
 GROQ_API_KEY=
 OPENROUTER_API_KEY=
 LANGSMITH_API_KEY=
-LANGSMITH_TRACING=true
+LANGSMITH_TRACING=false      # set true once LANGSMITH_API_KEY is filled in
 ELEVENLABS_API_KEY=
 ```
 
