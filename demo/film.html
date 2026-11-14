@@ -47,9 +47,9 @@ svg#wires path { fill: none; stroke-width: 2.2; stroke-linecap: round; transitio
 .kid { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
 .kid i { font-style: normal; width: 30px; height: 30px; border-radius: 50%; background: #ffe7d6; display: grid; place-items: center; font-size: 16px; }
 .rows { position: absolute; left: 18px; right: 18px; top: 66px; bottom: 82px; }
-.row { position: absolute; left: 0; right: 0; height: 68px; display: flex; align-items: center; gap: 16px; padding: 0 8px;
+.row { position: absolute; left: 0; right: 0; height: 58px; display: flex; align-items: center; gap: 16px; padding: 0 8px;
   border-radius: 16px; transition: transform .9s var(--ease), opacity .7s var(--ease), background .5s; }
-.row .th { width: 100px; height: 56px; border-radius: 12px; display: grid; place-items: center; font-size: 28px; flex: 0 0 auto;
+.row .th { width: 88px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 24px; flex: 0 0 auto;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
 .row .tt { font-size: 17px; font-weight: 500; }
 .row .tm { font-size: 13px; color: var(--muted); margin-top: 2px; }
@@ -97,10 +97,21 @@ svg#wires path { fill: none; stroke-width: 2.2; stroke-linecap: round; transitio
 .sess.on { opacity: 1; transform: none; }
 .sess b { color: var(--green); font-weight: 600; }
 
+.row.indep { background: #effaf3; }
+.row.indep .tm { color: var(--green); font-weight: 500; }
+.proof { position: absolute; left: 0; right: 0; top: 150px; display: flex; flex-direction: column; align-items: center; opacity: 0; pointer-events: none; transition: opacity .8s var(--ease); }
+.proof.on { opacity: 1; }
+.proof .nums { display: flex; gap: 28px; }
+.proof .num { width: 250px; padding: 26px 20px; border-radius: 24px; background: #fff; text-align: center; box-shadow: 0 30px 80px -30px rgba(30,40,90,.25), 0 0 0 1px var(--line); }
+.proof .num b { display: block; font-size: 72px; font-weight: 500; letter-spacing: -.03em; line-height: 1; }
+.proof .num span { display: block; margin-top: 10px; font-size: 17px; color: var(--muted); }
+.proof .naive { margin-top: 26px; font-size: 19px; color: var(--muted); }
+.proof .naive b { color: var(--red); font-weight: 600; }
 .pulse { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 18px var(--blue); opacity: 0; pointer-events: none; }
 
 .replay { position: fixed; right: 14px; bottom: 12px; font: 13px "Outfit", sans-serif; color: #9aa0ad; background: none; border: 0; cursor: pointer; opacity: 0; transition: opacity .4s; }
-body:hover .replay { opacity: 1; }
+body:hover .replay, body:hover .livebtn { opacity: 1; }
+.livebtn { position: fixed; right: 80px; bottom: 12px; font: 13px "Outfit", sans-serif; color: #9aa0ad; text-decoration: none; opacity: 0; transition: opacity .4s; }
 </style>
 </head>
 <body>
@@ -114,7 +125,7 @@ body:hover .replay { opacity: 1; }
   <div id="scene">
     <svg id="wires"></svg>
     <div class="feed">
-      <div class="feed-head"><b>For Maya</b><span class="kid"><i>🦊</i>age 7</span></div>
+      <div class="feed-head"><b id="forwho">For you</b><span class="kid"><i>🧒</i></span></div>
       <div class="rows" id="rows"></div>
       <div class="prompt" id="prompt"><span id="ptext">Tell the feed what to change…</span><button aria-hidden="true">↑</button></div>
     </div>
@@ -123,6 +134,7 @@ body:hover .replay { opacity: 1; }
     <div class="sessions" id="sessions"></div>
   </div>
 
+  <div class="proof" id="proof"></div>
   <div class="cap" id="cap"></div>
 
   <div class="title" id="outro">
@@ -130,11 +142,19 @@ body:hover .replay { opacity: 1; }
       <p>Governed memory on MongoDB Atlas</p></div>
   </div>
 </div>
+<a class="livebtn" id="livebtn" href="/">Live demo</a>
 <button class="replay" id="replay">Replay</button>
+<script src="film_data.js"></script>
 
 <script>
 "use strict";
 const $ = (s) => document.querySelector(s);
+const D = window.FILM_DATA;
+if (!D) {
+  document.body.innerHTML = "<p style='padding:40px;font:20px system-ui'>film_data.js is missing. Run: python -m demo.film_data</p>";
+  throw new Error("no film data");
+}
+if (location.protocol === "file:") $("#livebtn").style.display = "none";
 const stage = $("#stage");
 function fit() {
   const s = Math.min(innerWidth / 1280, innerHeight / 720);
@@ -143,32 +163,37 @@ function fit() {
 }
 addEventListener("resize", fit); fit();
 
-const MEM = {
-  space:   { icon: "🚀", label: "Space",   sub: "from 4 videos watched", glow: "#5b6cff", w: 82, y: 170 },
-  spooky:  { icon: "👻", label: "Spooky",  sub: "from 4 videos watched", glow: "#8a8aa3", w: 76, y: 290 },
-  animals: { icon: "🐾", label: "Animals", sub: "from 5 videos watched", glow: "#2bb3a3", w: 88, y: 410 },
-  art:     { icon: "🎨", label: "Crafts",  sub: "from 3 videos watched", glow: "#ff8a4c", w: 64, y: 530 },
+// Everything below comes from FILM_DATA (demo/film_data.py: the team's own slate generator and planner on the seed data).
+// Only the look (icons, colours) is decided here.
+const LOOK = {
+  space:    { icon: "🚀", label: "Space",   glow: "#5b6cff", c: "space",   e: "🪐" },
+  spooky:   { icon: "👻", label: "Spooky",  glow: "#8a8aa3", c: "spooky",  e: "👻" },
+  animals:  { icon: "🐾", label: "Animals", glow: "#2bb3a3", c: "animals", e: "🐧" },
+  art_craft:{ icon: "🎨", label: "Crafts",  glow: "#ff8a4c", c: "art",     e: "✂️" },
 };
-const V = {
-  planets: { t: "Amazing Planets", m: "space", e: "🪐", c: "space" },
-  haunted: { t: "Haunted Stories", m: "spooky", e: "👻", c: "spooky" },
-  otters:  { t: "Clever Otters", m: "animals", e: "🦦", c: "animals" },
-  mazes:   { t: "Whispering Mazes", m: "spooky", e: "🕯️", c: "spooky" },
-  paper:   { t: "Simple Paper Crafts", m: "art", e: "✂️", c: "art" },
-  comets:  { t: "Bright Comets", m: "space", e: "☄️", c: "space" },
-  pandas:  { t: "Tiny Pandas", m: "animals", e: "🐼", c: "animals" },
-};
-const META = { space: "Space", spooky: "Spooky", animals: "Animals", art: "Arts & crafts" };
-const ROW_H = 74;
-let rows = [];   // [{id, el}]
+const look = (t) => LOOK[t] || { icon: "✨", label: String(t).replace(/_/g, " "), glow: "#7b61ff", c: "space", e: "▶" };
+const FAULT = D.retracted.topic;
+const maxW = Math.max(...D.memories.map((m) => m.watches), 1);
+const step = Math.min(120, 360 / Math.max(D.memories.length - 1, 1));
+const MEM = {};
+D.memories.forEach((m, i) => {
+  MEM[m.topic] = { ...look(m.topic), sub: `from ${m.watches} videos watched`, w: Math.round(45 + 50 * m.watches / maxW), y: 170 + i * step };
+});
+const V = {};
+[...D.before, ...D.after].forEach((r) => {
+  const mems = r.mem.length ? r.mem : [r.topic];
+  V[r.video_id] = { t: r.title, mems, m: mems.find((x) => x !== FAULT) || mems[0], e: look(r.topic).e, c: look(r.topic).c };
+});
+const ROW_H = 61;
+let rows = [];
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const icons = (id, drop) => V[id].mems.filter((m) => m !== drop).map((m) => (MEM[m] || look(m)).icon).join(" ");
 
 function caption(html) {
   const c = $("#cap");
   c.classList.remove("on");
   return wait(html ? 380 : 0).then(() => { if (html) { c.innerHTML = html; c.classList.add("on"); } });
 }
-
 function buildOrbs() {
   $("#orbs").innerHTML = Object.entries(MEM).map(([k, m]) => `
     <div class="orb" id="orb-${k}" style="top:${m.y - 37}px; --glow:${m.glow}; --w:${m.w}%; opacity:0; transform: translateX(20px)">
@@ -176,12 +201,11 @@ function buildOrbs() {
       <div><div class="lbl">${m.label}<span class="stamp">Forgotten</span></div><div class="sub">${m.sub}</div><div class="bar"><i></i></div></div>
     </div>`).join("");
 }
-
 function addRow(id, idx, { hidden = true } = {}) {
   const v = V[id];
   const el = document.createElement("div");
   el.className = "row";
-  el.innerHTML = `<div class="th t-${v.c}">${v.e}</div><div><div class="tt">${v.t}</div><div class="tm">${META[v.m]} · because of ${MEM[v.m].icon}</div></div>`;
+  el.innerHTML = `<div class="th t-${v.c}">${v.e}</div><div><div class="tt">${v.t}</div><div class="tm">because of ${icons(id)}</div></div>`;
   el.style.transform = `translateY(${idx * ROW_H + (hidden ? 24 : 0)}px)`;
   el.style.opacity = hidden ? 0 : 1;
   $("#rows").appendChild(el);
@@ -191,105 +215,131 @@ function addRow(id, idx, { hidden = true } = {}) {
 }
 function place() { rows.forEach((r, i) => { r.idx = i; r.el.style.transform = `translateY(${i * ROW_H}px)`; r.el.style.opacity = 1; }); }
 
-// wires: one curve from every feed row to the memory that put it there, redrawn each frame
+// wires: one curve per (feed row, memory behind it), redrawn every frame
 const wires = $("#wires");
 function stagePt(el, side) {
   const s = stage.getBoundingClientRect(), b = el.getBoundingClientRect(), k = s.width / 1280;
   return { x: ((side === "r" ? b.right : b.left) - s.left) / k, y: (b.top + b.height / 2 - s.top) / k };
 }
-const wireState = {}; // id -> {color, opacity}
+const wireState = {}; // "videoId|topic" -> {color, opacity, dash}
 function draw() {
-  wires.innerHTML = rows.map((r) => {
-    const ball = document.querySelector(`#orb-${V[r.id].m} .ball`);
+  wires.innerHTML = rows.flatMap((r) => V[r.id].mems.map((mem) => {
+    const ball = document.querySelector(`#orb-${mem} .ball`);
     if (!ball || r.el.style.opacity === "0") return "";
-    const st = wireState[r.id] || {};
+    const st = wireState[r.id + "|" + mem] || {};
     if (st.opacity === 0) return "";
     const a = stagePt(r.el, "r"), b = stagePt(ball, "l");
     const mx = (a.x + b.x) / 2;
-    const color = st.color || MEM[V[r.id].m].glow;
+    const color = st.color || MEM[mem].glow;
     const op = Math.min(+r.el.style.opacity || 0, st.opacity ?? .55) * (+getComputedStyle(ball.closest(".orb")).opacity);
     return `<path d="M${a.x - 14},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x - 6},${b.y}" stroke="${color}" opacity="${op}" stroke-dasharray="${st.dash || "none"}"/>`;
-  }).join("");
+  })).join("");
   requestAnimationFrame(draw);
 }
-
 async function type(text, ms = 55) {
   const p = $("#ptext"); $("#prompt").classList.add("focus");
   for (let i = 0; i <= text.length; i++) { p.innerHTML = text.slice(0, i) + `<span class="caret"></span>`; await wait(ms); }
 }
+const clearWires = () => Object.keys(wireState).forEach((k) => delete wireState[k]);
+const byId = (id) => rows.find((r) => r.id === id);
 
 async function run() {
-  rows = []; $("#rows").innerHTML = ""; Object.keys(wireState).forEach((k) => delete wireState[k]);
+  rows = []; $("#rows").innerHTML = ""; clearWires();
   $("#sessions").innerHTML = ""; $("#ptext").textContent = "Tell the feed what to change…"; $("#prompt").classList.remove("focus");
-  ["#intro", "#outro", "#scene"].forEach((s) => $(s).classList.remove("on")); $("#ghost").classList.remove("fade");
+  ["#intro", "#outro", "#scene", "#proof"].forEach((s) => $(s).classList.remove("on")); $("#ghost").classList.remove("fade");
+  $("#forwho").textContent = "For " + D.scope.label;
   buildOrbs(); await caption("");
 
-  // 0–6s  title
+  // title
   await wait(400); $("#intro").classList.add("on");
   await wait(3200); $("#ghost").classList.add("fade");
   await wait(1600); $("#intro").classList.remove("on");
   await wait(700);
 
-  // 6–18s  the feed is built from memory
+  // the feed is built from memory
   $("#scene").classList.add("on");
-  await caption("Every video in Maya's feed is there <em>because of a memory.</em>");
+  await caption("Every video in this feed is there <em>because of a memory.</em>");
   for (const k of Object.keys(MEM)) { const o = $(`#orb-${k}`); o.style.opacity = 1; o.style.transform = "none"; await wait(260); }
   await wait(500);
-  const start = ["planets", "haunted", "otters", "mazes", "paper"];
-  for (let i = 0; i < start.length; i++) { const r = addRow(start[i], i); await wait(40); r.el.style.opacity = 1; r.el.style.transform = `translateY(${i * ROW_H}px)`; await wait(420); }
-  await wait(1600);
+  for (let i = 0; i < D.before.length; i++) { const r = addRow(D.before[i].video_id, i); await wait(40); r.el.style.opacity = 1; r.el.style.transform = `translateY(${i * ROW_H}px)`; await wait(420); }
+  await wait(1400);
   // why this?
-  const w = rows.find((r) => r.id === "planets");
-  w.el.classList.add("lit"); $("#orb-space").classList.add("lit"); wireState.planets = { opacity: 1, color: "#1a73e8" };
-  await caption("Ask why, and the answer is the memory itself.");
+  const wy = rows.find((r) => V[r.id].mems.length === 1 && V[r.id].m !== FAULT) || rows[0];
+  const wm = V[wy.id].m;
+  wy.el.classList.add("lit"); $(`#orb-${wm}`).classList.add("lit"); wireState[wy.id + "|" + wm] = { opacity: 1, color: "#1a73e8" };
+  await caption(`Ask why “${V[wy.id].t}”, and the answer is the memory itself.`);
   await wait(2600);
-  w.el.classList.remove("lit"); $("#orb-space").classList.remove("lit"); delete wireState.planets;
+  wy.el.classList.remove("lit"); $(`#orb-${wm}`).classList.remove("lit"); delete wireState[wy.id + "|" + wm];
 
-  // 18–28s  the parent says one sentence
-  await caption("Her parent says one sentence.");
+  // the parent says one sentence
+  await caption("A parent says one sentence.");
   await wait(600);
   await type("No more spooky stuff, she gets nightmares");
   await wait(500);
   $("#prompt button").classList.add("press"); await wait(220); $("#prompt button").classList.remove("press");
   await wait(300);
 
-  // 28–40s  retract the memory and everything built on it
-  $("#orb-spooky").classList.add("hit");
-  rows.filter((r) => V[r.id].m === "spooky").forEach((r) => { r.el.classList.add("doomed"); wireState[r.id] = { opacity: 1, color: "#e5484d" }; });
-  await caption("The memory is retracted, <em>and everything that depended on it.</em>");
+  // retract the memory and everything built only on it
+  const orb = $(`#orb-${FAULT}`);
+  orb.classList.add("hit");
+  const doomed = rows.filter((r) => D.removed.includes(r.id));
+  const kept = rows.filter((r) => D.kept_independent.includes(r.id));
+  doomed.forEach((r) => { r.el.classList.add("doomed"); wireState[r.id + "|" + FAULT] = { opacity: 1, color: "#e5484d" }; });
+  kept.forEach((r) => { wireState[r.id + "|" + FAULT] = { opacity: 1, color: "#e5484d" }; });
+  await caption(`The memory is retracted, <em>and what depended only on it.</em>`);
   await wait(2000);
-  rows.filter((r) => V[r.id].m === "spooky").forEach((r) => { wireState[r.id] = { opacity: 1, color: "#e5484d", dash: "4 8" }; });
+  doomed.concat(kept).forEach((r) => { wireState[r.id + "|" + FAULT] = { opacity: 1, color: "#e5484d", dash: "4 8" }; });
   await wait(700);
-  $("#orb-spooky").classList.remove("hit"); $("#orb-spooky").classList.add("gone");
-  const doomed = rows.filter((r) => V[r.id].m === "spooky");
-  doomed.forEach((r) => { r.el.style.opacity = 0; r.el.style.transform += " translateX(-40px)"; wireState[r.id] = { opacity: 0 }; });
+  orb.classList.remove("hit"); orb.classList.add("gone");
+  doomed.forEach((r) => { r.el.style.opacity = 0; r.el.style.transform += " translateX(-40px)"; wireState[r.id + "|" + FAULT] = { opacity: 0 }; });
+  kept.forEach((r) => { wireState[r.id + "|" + FAULT] = { opacity: 0 }; });
   await wait(800);
   doomed.forEach((r) => r.el.remove());
   rows = rows.filter((r) => !doomed.includes(r));
   $("#ptext").textContent = "Tell the feed what to change…"; $("#prompt").classList.remove("focus");
   place();
-  await wait(700);
+  // independent support survives
+  for (const r of kept) {
+    V[r.id].mems = V[r.id].mems.filter((m) => m !== FAULT);
+    r.el.classList.add("indep");
+    r.el.querySelector(".tm").textContent = `Kept · still backed by ${icons(r.id, FAULT)}`;
+  }
+  if (kept.length) {
+    await caption(`“${V[kept[0].id].t}” <em>stays: it has support of its own.</em>`);
+    await wait(2600);
+  }
   await caption("The feed rebuilds from what's left.");
-  for (const id of ["comets", "pandas"]) { const r = addRow(id, rows.length); await wait(40); place(); await wait(520); }
-  await wait(1800);
+  for (const id of D.added) { const r = addRow(id, rows.length); await wait(40); place(); await wait(520); }
+  await wait(1600);
 
-  // 40–52s  it stays forgotten
+  // it stays forgotten
   await caption("Next session. And the next. <em>It doesn't creep back.</em>");
   const box = $("#sessions");
-  for (let s = 2; s <= 4; s++) {
+  for (const s of D.sessions) {
     rows.forEach((r) => { r.el.style.opacity = .25; });
     await wait(420);
     place();
     const chip = document.createElement("div");
-    chip.className = "sess"; chip.innerHTML = `Session ${s} <span>👻</span><b>0</b>`;
+    chip.className = "sess";
+    chip.innerHTML = `Session ${s.n} <span>${look(FAULT).icon}</span><b${s.fault_items || s.fault_active ? ' style="color:var(--red)"' : ""}>${s.fault_items}</b>`;
     box.appendChild(chip); await wait(30); chip.classList.add("on");
     await wait(1500);
   }
-  await wait(1200);
+  await wait(1000);
 
-  // 52–60s  outro
+  // proof
   await caption("");
+  const P = D.proof;
+  $("#proof").innerHTML = `<div class="nums">
+      <div class="num"><b>${P.recalled.length}</b><span>decisions recalled and replayed</span></div>
+      <div class="num"><b>${P.preserved.length}</b><span>kept, with independent support</span></div>
+      <div class="num"><b>${P.evidence_retracted}</b><span>watches retracted at the source</span></div></div>
+    <div class="naive">Delete only the label instead? It comes back: <b>${P.naive_comes_back ? "yes" : "no"}</b>.</div>`;
   $("#scene").classList.remove("on");
+  await wait(900);
+  $("#proof").classList.add("on");
+  await wait(5200);
+  $("#proof").classList.remove("on");
   await wait(900);
   $("#outro").classList.add("on");
 }
@@ -297,7 +347,10 @@ async function run() {
 requestAnimationFrame(draw);
 run();
 $("#replay").addEventListener("click", run);
-addEventListener("keydown", (e) => { if (e.key === "r" || e.key === " ") run(); });
+addEventListener("keydown", (e) => {
+  if (e.key === "r" || e.key === " ") run();
+  if ((e.key === "l" || e.key === "L") && location.protocol !== "file:") location.href = "/";
+});
 </script>
 </body>
 </html>

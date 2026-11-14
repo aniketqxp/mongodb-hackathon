@@ -5,9 +5,9 @@ Two things live here.
 | Route | What it is | Data |
 | --- | --- | --- |
 | `/` | **Live split screen.** Left: Jasmine's feed UI (`ui/static`, served unmodified at `/left/`). Right: what the memory and feed did after each action. | Real: core (`core/api.py`) on Atlas, harness (`harness/`), compiler (`compiler/`), all in one process |
-| `/film` | **Animated explainer**, about 50 s, self-playing at 1280×720. Press `R` or Space to replay. | None. Static page; counts and bars in it are illustrative, not measurements |
+| `/film` | **Animated explainer**, about 1 min, self-playing at 1280×720. `R` or Space replays, `L` jumps to the live demo. | Real, offline: `demo/film_data.py` replays the team's slate generator (`harness.slate`) and planner (`core.planner`) on `data/` (no database, no LLM). Titles, watch counts, which videos are removed, which one is kept for independent support, the recalled/preserved decisions and the "stays forgotten" ticks are all computed |
 
-`film.html` also opens directly from disk; it needs no server.
+`film.html` also opens directly from disk with the committed `film_data.js`. When served at `/film` it loads fresh data from `/film_data.js`. After changing `data/`, the planner or the slate code, run `python -m demo.film_data` to refresh the snapshot (a test fails if it is stale).
 
 ## Run it on the recording laptop
 
