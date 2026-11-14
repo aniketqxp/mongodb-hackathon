@@ -13,8 +13,8 @@ A4 | Aniket | done (merged) | core/conformance.py: 5/5 provenance on pack_video_
 D1 | David | done | directive compiler on real data/ pack (pack_video_demo); gate fields (maturity) not directable; PIN gate; 25-prompt set in eval/directive_prompts.json; 100 tests pass offline; :8002 UI routes pending contract; live LLM eval 25/25; CONTRACT v0.2 header + 422 done | 15:23
 D2 | David | done | pack compiler + cached fallback (compiler/pack.py), 5-check conformance suite (compiler/conformance.py), second pack pack_team_notes; suite 5/5 on reference core, each injected bug caught; mock scores 1/5 (canned); live LLM: 4/4 sentences -> valid packs, 5/5 on reference core; live A3 run pending (conventions in BLOCKERS) | 15:22
 D3 | David | done | retract-one: dec_02/03 recalled, dec_08 preserved, slate drops only spooky-only items (eval/retract_one.py); with/without-memory eval on 25 prompts: gate + effect 100% both modes, personalized 98% vs 0% (live LLM same); evidence in eval/evidence/; LangSmith traced (project memory-governance-eval, dataset governed-memory-25); live directive eval 24-25/25; --core run pending live data | 16:04
-J1 | Jasmine | doing | UI on J2 harness + G2 data vs mock: child switch, feed, PIN rule (block/boost), gate probe, un-recommend keeps independently supported items, why-this. Needs D1 compile route, A3 | 14:51
-J2 | Jasmine | doing | harness/: generic gate, gate>block>boost, slate gen, decisions per item, 13 unit tests. Seed memory until real /memory/search | 14:51
+J1 | Jasmine | doing | parent-only feed UI: bottom prompt -> D1 compiler (auto slots, manual fallback), Save rule (server passes DIRECTIVE_PIN), ⋮ Why this?/Don't recommend, child avatars, What changed diff; ui/run_demo.sh (--core/--reseed); live run on real core waits on MONGODB_URI | 16:16
+J2 | Jasmine | doing | harness: gate>block>boost, slates, decisions per item, GET /directives + /memory/search via HARNESS_*=api (set by run_demo.sh --core), 15 tests | 16:16
 J3 | Jasmine | todo | | 
 
 Contract: v0.2 at 15:05 (Greatness).

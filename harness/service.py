@@ -14,13 +14,16 @@ from .slate import ID_FIELD, build_slate
 
 
 class Harness:
-    def __init__(self, api=None, memory=None):
+    def __init__(self, api=None, memory=None, directives=None):
         self.api = api or CoreApi()
         mode = memory or os.environ.get("HARNESS_MEMORY", "seed")
         self.memory = ApiMemory(self.api) if mode == "api" else SeedMemory()
         self.pack_id = data.pack()["pack_id"]
-        # CONTRACT v0.1 has no route to read directives back, so we keep the ones the core
-        # accepted (POST /directives returned an id) for this process. See OPS/BLOCKERS.md.
+        # Where active directives come from:
+        #   "api"   - GET /directives (CONTRACT v0.2), the source of truth once the real core runs.
+        #   "local" - the ones the core accepted in this process. Default while on the mock, whose
+        #             GET /directives returns a canned rule for every scope.
+        self.directive_source = directives or os.environ.get("HARNESS_DIRECTIVES", "local")
         self.directives = {}
         self.last = {}  # scope_id -> {video_id: decision_id} for the slate currently shown
 
@@ -37,7 +40,8 @@ class Harness:
         self._check_scope(scope_id)
         nodes = self.memory.search(self.pack_id, scope_id, k=20)
         prev = self.last.get(scope_id, {})
-        out = build_slate(scope_id, nodes, self.directives.get(scope_id, []), size=size, previous=list(prev))
+        active = self.active_directives(scope_id)
+        out = build_slate(scope_id, nodes, active, size=size, previous=list(prev))
         rules, profile = data.pack().get("gate", []), data.scope_profile(scope_id)
         current = {}
         for entry in out["slate"]:
@@ -58,9 +62,14 @@ class Harness:
         out.update({
             "had_previous": bool(prev), "removed": removed,
             "pack_id": self.pack_id, "scope_id": scope_id, "memory_source": self.memory.name,
-            "memories": nodes, "directives": self.directives.get(scope_id, []),
+            "memories": nodes, "directives": active, "directive_source": self.directive_source,
         })
         return out
+
+    def active_directives(self, scope_id):
+        if self.directive_source == "api":
+            return self.api.list_directives(self.pack_id, scope_id, active_only=True)
+        return self.directives.get(scope_id, [])
 
     # ---------- events ----------
     def watch(self, scope_id, video_id, completion=1.0):

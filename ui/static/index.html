@@ -2,106 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Governed Feed</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">Governed Feed <span class="sub">memory you can govern</span></div>
-    <div class="ids">
-      <label class="scope-pick">Child
-        <select id="scope-select" aria-label="Which child's feed"></select>
-      </label>
-      <span class="chip" id="chip-pack">pack …</span>
-      <span class="chip" id="chip-mem">memory …</span>
-      <span class="chip api" id="chip-api"><i class="dot"></i><span>API …</span></span>
+    <div class="brand">Governed Feed</div>
+    <div class="top-actions">
+      <div class="kids" id="kid-pick" role="radiogroup" aria-label="Which child's feed"></div>
     </div>
   </header>
 
-  <main class="layout">
-    <!-- Child-facing feed -->
-    <section class="panel feed" aria-labelledby="feed-h">
-      <div class="panel-head">
-        <h2 id="feed-h">Up next for you</h2>
-        <button class="ghost small" id="btn-reload" title="Clear this session's retractions and rules for this child">Start over</button>
-      </div>
-      <div class="memory-strip" id="memory-strip" aria-label="Watch memory this feed was built from"></div>
-      <div class="cards" id="cards"></div>
-      <p class="hint" id="feed-source"></p>
-      <div class="probe">
-        <button class="ghost small" id="btn-probe">Try to watch a restricted video</button>
-        <span class="hint">The gate rejects it before it can reach memory or the feed.</span>
-      </div>
-    </section>
-
-    <!-- Parent side -->
-    <aside class="panel parent" aria-labelledby="parent-h">
-      <h2 id="parent-h">Parent controls</h2>
-
-      <form id="parent-form" class="stack">
-        <label for="parent-text">Tell the feed what to do</label>
-        <textarea id="parent-text" rows="3" placeholder="No scary stuff until the weekend."></textarea>
-        <button type="submit" class="primary">Parse instruction</button>
-      </form>
-
-      <form id="directive-form" class="stack card-box" hidden>
-        <div class="box-head">
-          <strong>Parsed directive</strong>
-          <span class="tag" id="compiler-tag">manual slots</span>
-        </div>
-        <p class="hint" id="compiler-note"></p>
-        <div class="row">
-          <label>Type
-            <select id="d-type">
-              <option value="suppress">suppress (block)</option>
-              <option value="prioritize">prioritize (boost)</option>
-              <option value="retract">retract</option>
-            </select>
-          </label>
-          <label>Target kind
-            <select id="d-kind">
-              <option value="topic">topic</option>
-              <option value="tag">tag</option>
-              <option value="video_id">video id</option>
-              <option value="node">memory id</option>
-            </select>
-          </label>
-          <label>Target value
-            <input id="d-value" list="values" placeholder="e.g. spooky" autocomplete="off">
-            <datalist id="values"></datalist>
-          </label>
-        </div>
-        <div class="row">
-          <label id="wrap-exp">Expires
-            <input type="datetime-local" id="d-exp">
-          </label>
-          <label id="wrap-cap">Cap per slate
-            <input type="number" id="d-cap" min="1" max="10" value="2">
-          </label>
-        </div>
-
-        <div class="confirm">
-          <p class="plain" id="d-plain"></p>
-          <div class="row pin-row">
-            <label>Parent PIN
-              <input id="d-pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••">
-            </label>
-            <button type="submit" class="primary">Confirm with PIN</button>
-            <button type="button" class="ghost" id="btn-cancel">Cancel</button>
-          </div>
-        </div>
-      </form>
-
-      <h3>Receipts</h3>
-      <div id="receipts" class="receipts"><p class="hint">Confirmed rules and un-recommends show up here with what changed.</p></div>
-    </aside>
+  <main class="feed-page">
+    <div class="vlist" id="cards" aria-label="Recommended videos"></div>
+    <div class="probe">
+      <button class="link-btn" id="btn-probe">Try a restricted video</button>
+    </div>
   </main>
+
+  <!-- Bottom dock: rule check sheet, examples, and the prompt bar -->
+  <div class="dock">
+    <form id="directive-form" class="sheet" hidden>
+      <div class="sheet-head">
+        <strong>Check this rule</strong>
+        <span class="tag" id="compiler-tag">manual</span>
+        <button type="button" class="icon-btn small" id="btn-cancel" aria-label="Cancel">✕</button>
+      </div>
+      <p class="hint" id="compiler-note" hidden></p>
+      <p class="plain" id="d-plain"></p>
+      <div class="row">
+        <label>Action
+          <select id="d-type">
+            <option value="suppress">Hide</option>
+            <option value="prioritize">Show more</option>
+            <option value="retract">Forget a memory</option>
+          </select>
+        </label>
+        <label>Match by
+          <select id="d-kind">
+            <option value="topic">Topic</option>
+            <option value="tag">Tag</option>
+          </select>
+        </label>
+        <label>Which
+          <input id="d-value" list="values" placeholder="e.g. spooky" autocomplete="off">
+          <datalist id="values"></datalist>
+        </label>
+        <label id="wrap-exp">Until
+          <input type="datetime-local" id="d-exp">
+        </label>
+        <label id="wrap-cap">Max per feed
+          <input type="number" id="d-cap" min="1" max="10" value="2">
+        </label>
+      </div>
+      <div class="row confirm-row">
+        <button type="submit" class="primary">Save rule</button>
+      </div>
+    </form>
+
+    <div class="examples" id="examples" aria-label="Examples">
+      <button type="button" class="pill">No scary videos until Sunday</button>
+      <button type="button" class="pill">More science videos</button>
+      <button type="button" class="pill">No violent videos this week</button>
+    </div>
+
+    <form id="parent-form" class="composer">
+      <input id="parent-text" autocomplete="off" aria-label="Tell the feed what your child should watch"
+             placeholder="What should your child watch (or not)?">
+      <button type="submit" class="send" aria-label="Set rule">→</button>
+    </form>
+  </div>
+
+  <dialog id="changes-dialog">
+    <form method="dialog" class="dialog-head">
+      <h2>What changed</h2>
+      <button class="icon-btn small" aria-label="Close">✕</button>
+    </form>
+    <div id="receipts" class="receipts"></div>
+  </dialog>
 
   <dialog id="why-dialog">
     <form method="dialog" class="dialog-head">
       <h2 id="why-title">Why this?</h2>
-      <button class="ghost small" aria-label="Close">Close</button>
+      <button class="icon-btn small" aria-label="Close">✕</button>
     </form>
     <div id="why-body"></div>
   </dialog>

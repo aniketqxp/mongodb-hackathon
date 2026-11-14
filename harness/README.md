@@ -17,6 +17,6 @@ Rules enforced in code:
 
 Run tests: `python3 -m unittest discover -s harness/tests -t .`
 
-Env: `API_BASE` (core API), `HARNESS_MEMORY=seed|api` (default `seed` until the real `/memory/search` lands).
+Env: `API_BASE` (core API), `HARNESS_MEMORY=seed|api` (default `seed` until the real `/memory/search` lands), `HARNESS_DIRECTIVES=local|api` (`api` reads `GET /directives`; default `local` because the mock returns a canned rule for every scope).
 
-Stand-ins until the contract grows (see `OPS/BLOCKERS.md`): directives the core accepted are cached in-process because there is no route to read them back; memory comes from the seed graph while the mock search is canned.
+Stand-ins while on the mock: directives the core accepted are cached in-process (switch to `HARNESS_DIRECTIVES=api` with the real core); memory comes from the seed graph while the mock search is canned.
