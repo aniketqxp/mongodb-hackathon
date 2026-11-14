@@ -4,6 +4,8 @@
 #   ui/run_demo.sh             start all three, open the browser, Ctrl+C stops everything
 #   ui/run_demo.sh --restart   first stop whatever is already listening on those ports
 #   ui/run_demo.sh --no-open   do not open the browser
+#   ui/run_demo.sh --core      run Aniket's real core (core.api, needs MONGODB_URI) on :8001 instead of the mock
+#   ui/run_demo.sh --core --reseed   first reset the demo pack's data in MONGODB_DB from data/ (fresh demo)
 #
 # Needs: .venv on Python 3.10+ with mock/ and compiler/ requirements, and a .env (copy .env.example).
 # Set API_BASE in .env to point the UI at the real core API instead of the mock (the mock is then skipped).
@@ -15,11 +17,15 @@ PY="$ROOT/.venv/bin/python"
 LOGS="$ROOT/.demo-logs"
 RESTART=0
 OPEN=1
+CORE=0
+RESEED=0
 for arg in "$@"; do
   case "$arg" in
     --restart) RESTART=1 ;;
     --no-open) OPEN=0 ;;
-    -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
+    --core) CORE=1 ;;
+    --reseed) RESEED=1 ;;
+    -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
     *) echo "unknown option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -44,10 +50,21 @@ export COMPILER_DATA_DIR CORE_API_URL API_BASE
 export COMPILER_URL="${COMPILER_URL:-http://127.0.0.1:8002}"   # the compiler checks DIRECTIVE_PIN
 [ -n "${GROQ_API_KEY:-}${OPENROUTER_API_KEY:-}" ] || warn "No GROQ_API_KEY/OPENROUTER_API_KEY: sentence parsing will fail; use the manual slots"
 
+[ $RESEED = 1 ] && [ $CORE = 0 ] && die "--reseed only makes sense with --core"
 USE_MOCK=0
-case "$API_BASE" in http://localhost:8001*|http://127.0.0.1:8001*) USE_MOCK=1 ;; esac
+LOCAL_API=0
+case "$API_BASE" in http://localhost:8001*|http://127.0.0.1:8001*) LOCAL_API=1 ;; esac
+if [ $CORE = 1 ]; then
+  [ $LOCAL_API = 1 ] || die "--core runs the core on :8001, but API_BASE in .env points at $API_BASE"
+  [ -n "${MONGODB_URI:-}" ] || die "--core needs MONGODB_URI in .env (the Atlas connection string from the team)"
+  "$PY" -c 'import pymongo, dotenv' 2>/dev/null || die "Missing core packages. Run: .venv/bin/pip install pymongo python-dotenv requests"
+  # With the real core, memory and rules come from the API, not the seed file / in-process cache.
+  export HARNESS_MEMORY="${HARNESS_MEMORY:-api}" HARNESS_DIRECTIVES="${HARNESS_DIRECTIVES:-api}"
+else
+  USE_MOCK=$LOCAL_API
+fi
 
-PORTS="8002 8080"; [ $USE_MOCK = 1 ] && PORTS="8001 $PORTS"
+PORTS="8002 8080"; [ $USE_MOCK = 1 ] || [ $CORE = 1 ] && PORTS="8001 $PORTS"
 for p in $PORTS; do
   pid=$(lsof -tiTCP:"$p" -sTCP:LISTEN 2>/dev/null || true)
   [ -z "$pid" ] && continue
@@ -76,8 +93,15 @@ start() { # name, log, command...
   echo "  started $name (pid $!), log: .demo-logs/$log"
 }
 
+if [ $RESEED = 1 ]; then
+  say "Reseeding pack_video_demo in database ${MONGODB_DB:-governed_memory}"
+  "$PY" -c 'from core.demo import reseed; reseed()' > "$LOGS/reseed.log" 2>&1 || die "Reseed failed; see .demo-logs/reseed.log"
+  echo "  ok  reseeded from data/"
+fi
+
 say "Starting demo services"
 [ $USE_MOCK = 1 ] && start "mock core API :8001" mock.log "$PY" -m uvicorn mock.app:app --port 8001
+[ $CORE = 1 ] && start "real core API :8001 (db ${MONGODB_DB:-governed_memory})" core.log "$PY" -m uvicorn core.api:app --port 8001
 start "directive compiler :8002" compiler.log "$PY" -m uvicorn compiler.app:app --port 8002
 start "UI + harness :8080" ui.log "$PY" ui/server.py
 
@@ -89,12 +113,18 @@ wait_up() { # name, url
   die "$1 did not start; see .demo-logs/"
 }
 [ $USE_MOCK = 1 ] && wait_up "mock core API" "http://127.0.0.1:8001/ledger"
+if [ $CORE = 1 ]; then  # /ledger touches the database, so this also proves the Atlas connection
+  wait_up "real core API" "http://127.0.0.1:8001/docs"
+  code=$(curl -s -o "$LOGS/core_check.json" -w '%{http_code}' "http://127.0.0.1:8001/ledger?pack_id=pack_video_demo&scope_id=child_7&limit=1")
+  [ "$code" = 200 ] || die "Core is up but cannot read the database (HTTP $code); see .demo-logs/core.log"
+  echo "  ok  database reachable"
+fi
 wait_up "directive compiler" "http://127.0.0.1:8002/docs"
 wait_up "UI" "http://127.0.0.1:8080/ui/config"
 
 echo
 say "Demo is running → http://127.0.0.1:8080   (parent PIN: from DIRECTIVE_PIN in .env)"
-echo "  core API: $API_BASE$([ $USE_MOCK = 1 ] && echo ' (mock)')"
+echo "  core API: $API_BASE$([ $USE_MOCK = 1 ] && echo ' (mock)')$([ $CORE = 1 ] && echo ' (real core, memory+rules from API)')"
 echo "  Press Ctrl+C to stop everything."
 [ $OPEN = 1 ] && command -v open >/dev/null && open "http://127.0.0.1:8080"
 
