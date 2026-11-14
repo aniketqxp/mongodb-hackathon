@@ -274,8 +274,16 @@ def index():
 
 @app.get("/film")
 def film():
-    """The 1-minute animated explainer (static, no data; numbers in it are illustrative)."""
+    """The animated explainer. Its numbers come from /film_data.js (real slate generator + planner on the seed data)."""
     return FileResponse(Path(__file__).parent / "film.html")
+
+
+@app.get("/film_data.js")
+def film_data():
+    """Fresh film data on every load (demo/film_data.py), so the film always matches data/ and the planner."""
+    from fastapi.responses import Response
+    from demo import film_data as fd
+    return Response(fd.js(), media_type="application/javascript", headers={"Cache-Control": "no-store"})
 
 
 app.mount("/left", StaticFiles(directory=ROOT / "ui" / "static", html=True), name="left")
