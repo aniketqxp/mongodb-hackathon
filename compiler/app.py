@@ -24,7 +24,7 @@ app = FastAPI(title="directive-compiler", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["POST"], allow_headers=["*"])
 gate = PinGate()
 
-STATUS = {"bad_request": 400, "not_confirmed": 403, "not_found": 404, "scope_violation": 403, "internal": 502}
+STATUS = {"bad_request": 400, "not_confirmed": 422, "forbidden": 403, "not_found": 404, "scope_violation": 403, "internal": 502}  # CONTRACT v0.2
 
 
 @app.exception_handler(DirectiveError)

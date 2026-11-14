@@ -10,7 +10,7 @@ A1 | Aniket | done (merged) | core/db.py: 7 collections, $jsonSchema validators 
 A2 | Aniket | done (merged) | core/planner.py + engine.py: provenance trace, evidence retract, derivation, support check, replay, RETRACTION_POLICY; fixtures core/fixtures/plan_*.json ready for G3 | 15:30
 A3 | Aniket | done (merged) | core/api.py: every mock route, same shapes, port 8001 (`uvicorn core.api:app --port 8001`); X-Compiler-Key enforced | 15:30
 A4 | Aniket | done (merged) | core/conformance.py: 5/5 provenance on pack_video_demo + pack_team_docs; label_only 4/5 (fails check 1) | 15:30
-D1 | David | done | directive compiler on real data/ pack (pack_video_demo); gate fields (maturity) not directable; PIN gate; 25-prompt set in eval/directive_prompts.json; 100 tests pass offline; :8002 UI routes pending contract; live LLM eval 25/25 | 15:22
+D1 | David | done | directive compiler on real data/ pack (pack_video_demo); gate fields (maturity) not directable; PIN gate; 25-prompt set in eval/directive_prompts.json; 100 tests pass offline; :8002 UI routes pending contract; live LLM eval 25/25; CONTRACT v0.2 header + 422 done | 15:23
 D2 | David | done | pack compiler + cached fallback (compiler/pack.py), 5-check conformance suite (compiler/conformance.py), second pack pack_team_notes; suite 5/5 on reference core, each injected bug caught; mock scores 1/5 (canned); live LLM: 4/4 sentences -> valid packs, 5/5 on reference core; live A3 run pending (conventions in BLOCKERS) | 15:22
 D3 | David | todo | | 
 J1 | Jasmine | doing | UI on J2 harness + G2 data vs mock: child switch, feed, PIN rule (block/boost), gate probe, un-recommend keeps independently supported items, why-this. Needs D1 compile route, A3 | 14:51

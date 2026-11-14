@@ -40,7 +40,7 @@ def test_client_preconfirmed_directive_still_needs_pin(client):
     d = client.post("/directives/compile", json={"pack_id": "pack_video_demo", "scope_id": "child_7", "text": "no spooky today"}).json()["directive"]
     d["confirmed_by"] = "builder"
     r = client.post("/directives/confirm", json={"pack_id": "pack_video_demo", "scope_id": "child_7", "directive": d, "pin": "0000"})
-    assert r.status_code == 403 and r.json()["error"]["code"] == "not_confirmed"
+    assert r.status_code == 422 and r.json()["error"]["code"] == "not_confirmed"  # CONTRACT v0.2
     assert client.sent == []
 
 

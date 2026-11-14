@@ -21,7 +21,7 @@ submit_directive(d, pack, scope_id, vocab)                         # CORE_API_UR
 ```
 
 ## Service for the UI (port 8002)
-`uvicorn compiler.app:app --port 8002`
+`uvicorn compiler.app:app --port 8002` (env: `DIRECTIVE_PIN`, `BUILDER_PIN`, `COMPILER_SHARED_SECRET` sent to core as `X-Compiler-Key`, `CORE_API_URL`)
 - `POST /directives/compile` `{pack_id, scope_id, text}` → `{directive, summary}`
 - `POST /directives/confirm` `{pack_id, scope_id, directive, pin}` → core `/directives` response
 
