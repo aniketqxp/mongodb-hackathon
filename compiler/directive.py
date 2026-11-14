@@ -30,6 +30,7 @@ from compiler.schemas import (
 
 MAX_TEXT_CHARS = 500
 Vocab = Mapping[str, Iterable[str]]  # target kind -> allowed values, supplied by the caller (pack data / taxonomy)
+KnownIds = Iterable[str] | Mapping[str, str]  # retractable ids in this scope (optionally id -> text for the prompt)
 
 
 class DirectiveError(Exception):
@@ -70,12 +71,22 @@ def resolve_target(kind: str, value: str, vocab: Vocab) -> Target:
     return Target(kind=k, value=v)
 
 
+def gate_fields(pack: Pack) -> set[str]:
+    """Fields owned by the gate or the scope profile. No directive may target them (gate > block > boost)."""
+    out = {pack.scope_field, "scope_id", "pack_id"}
+    for g in pack.gate:
+        out.add(g.field)
+        if g.value_from_scope:
+            out.add(g.value_from_scope)
+    return {_norm(x) for x in out}
+
+
 def validate_directive(
     directive: Directive | Mapping[str, Any],
     pack: Pack,
     vocab: Vocab,
     *,
-    known_ids: Iterable[str] | None = None,
+    known_ids: KnownIds | None = None,
     now: datetime | None = None,
 ) -> Directive:
     """Full check against contract section 3 plus pack and vocab. Returns a clean Directive."""
@@ -86,6 +97,12 @@ def validate_directive(
 
     if d.type not in pack.directive_vocab:
         raise DirectiveError("bad_request", f"directive type {d.type!r} not in pack directive_vocab")
+
+    if _norm(d.target.kind) in gate_fields(pack):
+        raise DirectiveError(
+            "bad_request",
+            f"gate_field: {d.target.kind!r} is set by the gate and scope profile, not by directives",
+        )
 
     if d.type == "retract":
         if known_ids is not None and d.target.value not in set(known_ids):
@@ -114,7 +131,7 @@ def build_directive(
     pack: Pack,
     vocab: Vocab,
     *,
-    known_ids: Iterable[str] | None = None,
+    known_ids: KnownIds | None = None,
     now: datetime | None = None,
 ) -> Directive:
     """Turn the LLM's draft into an unconfirmed contract Directive. Code owns dates, cap rules and confirmation."""
@@ -166,17 +183,25 @@ _SYSTEM = (
 _cache: dict[str, dict] = {}
 
 
-def _cache_key(text: str, pack: Pack, vocab: Vocab) -> str:
+def _cache_key(text: str, pack: Pack, vocab: Vocab, known_ids: KnownIds | None = None) -> str:
+    ids = sorted(known_ids) if known_ids is not None else None
     blob = json.dumps(
-        [_norm(text), pack.pack_id, pack.directive_vocab, {k: sorted(v) for k, v in vocab.items()}], sort_keys=True
+        [_norm(text), pack.pack_id, pack.directive_vocab, {k: sorted(v) for k, v in vocab.items()}, ids], sort_keys=True
     )
     return hashlib.sha256(blob.encode()).hexdigest()
 
 
-def _prompt(text: str, pack: Pack, vocab: Vocab) -> list[tuple[str, str]]:
+MAX_PROMPT_IDS = 30
+
+
+def _prompt(text: str, pack: Pack, vocab: Vocab, known_ids: KnownIds | None = None) -> list[tuple[str, str]]:
     targets = "; ".join(f"{k}: {', '.join(sorted(v)[:40])}" for k, v in vocab.items())
     if "retract" in pack.directive_vocab:
-        targets += f"; {' | '.join(RETRACT_KINDS)}: <id>"
+        if isinstance(known_ids, Mapping) and known_ids:
+            ids = ", ".join(f"{i} ({t[:60]})" for i, t in list(known_ids.items())[:MAX_PROMPT_IDS])
+            targets += f"; node: {ids}"
+        else:
+            targets += f"; {' | '.join(RETRACT_KINDS)}: <id>"
     system = _SYSTEM.format(
         item=pack.labels.item,
         scope=pack.labels.scope,
@@ -200,7 +225,7 @@ def compile_directive(
     vocab: Vocab,
     *,
     llm: Callable[[list], Any] | None = None,
-    known_ids: Iterable[str] | None = None,
+    known_ids: KnownIds | None = None,
     now: datetime | None = None,
     use_cache: bool = True,
 ) -> Directive:
@@ -211,11 +236,11 @@ def compile_directive(
     if len(text) > MAX_TEXT_CHARS:
         raise DirectiveError("bad_request", f"text longer than {MAX_TEXT_CHARS} chars")
 
-    key = _cache_key(text, pack, vocab)
+    key = _cache_key(text, pack, vocab, known_ids)
     raw = _cache.get(key) if use_cache else None
     if raw is None:
         try:
-            out = (llm or _default_llm())(_prompt(text, pack, vocab))
+            out = (llm or _default_llm())(_prompt(text, pack, vocab, known_ids))
         except Exception as e:  # provider errors, malformed JSON, schema mismatch
             raise DirectiveError("internal", f"llm_failed: {type(e).__name__}") from None
         raw = out.model_dump() if hasattr(out, "model_dump") else out
@@ -285,7 +310,7 @@ def submit_directive(
     vocab: Vocab,
     *,
     base_url: str | None = None,
-    known_ids: Iterable[str] | None = None,
+    known_ids: KnownIds | None = None,
     client: Any = None,
     now: datetime | None = None,
 ) -> dict:

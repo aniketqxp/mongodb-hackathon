@@ -1,24 +1,27 @@
-import json
 from datetime import datetime, timezone
-from pathlib import Path
 
 import pytest
 
 from compiler import directive as dmod
-from compiler.schemas import Pack
+from compiler.packs import load_bundle
 
-FIX = Path(__file__).resolve().parents[1] / "fixtures"
+PACK_ID = "pack_video_demo"  # real G2 pack in data/
 NOW = datetime(2026, 11, 14, 19, 0, tzinfo=timezone.utc)
 
 
 @pytest.fixture
-def pack():
-    return Pack.model_validate(json.loads((FIX / "demo_pack.pack.json").read_text()))
+def bundle():
+    return load_bundle(PACK_ID)
 
 
 @pytest.fixture
-def vocab():
-    return json.loads((FIX / "demo_pack.vocab.json").read_text())
+def pack(bundle):
+    return bundle.pack
+
+
+@pytest.fixture
+def vocab(bundle):
+    return bundle.vocab
 
 
 @pytest.fixture(autouse=True)

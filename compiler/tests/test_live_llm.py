@@ -14,7 +14,7 @@ needs_key = pytest.mark.skipif(
 @pytest.mark.parametrize(
     "text,typ,value",
     [
-        ("no scary stuff for a week", "suppress", "scary"),
+        ("no spooky videos for a week", "suppress", "spooky"),
         ("show a bit more about space, max 2 at a time", "prioritize", "space"),
     ],
 )
