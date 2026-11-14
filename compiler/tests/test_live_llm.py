@@ -32,3 +32,13 @@ def test_live_injection_stays_unconfirmed_and_in_vocab(pack, vocab):
         return
     assert d.confirmed_by is None
     assert d.target.value in vocab.get(d.target.kind, []) or d.type == "retract"
+
+
+@needs_key
+def test_live_pack_compile(tmp_path, monkeypatch):
+    from compiler.pack import compile_pack, validate_pack
+
+    monkeypatch.setenv("PACK_CACHE_DIR", str(tmp_path))
+    r = compile_pack("A clinic assistant that remembers patient-reported symptoms per synthetic patient and forgets them after 90 days")
+    validate_pack(r["pack"])
+    assert r["source"] in ("llm", "fallback")
