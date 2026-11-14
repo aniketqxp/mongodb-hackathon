@@ -1,0 +1,166 @@
+{
+ "graph": {
+  "nodes": [
+   {
+    "_id": "e1",
+    "status": "active"
+   },
+   {
+    "_id": "e2",
+    "status": "active"
+   },
+   {
+    "_id": "e3",
+    "status": "active"
+   },
+   {
+    "_id": "e4",
+    "status": "active"
+   },
+   {
+    "_id": "T",
+    "status": "active"
+   },
+   {
+    "_id": "S",
+    "status": "active"
+   },
+   {
+    "_id": "U",
+    "status": "active"
+   }
+  ],
+  "edges": [
+   {
+    "from": "e1",
+    "to": "T",
+    "rel": "r"
+   },
+   {
+    "from": "e2",
+    "to": "T",
+    "rel": "r"
+   },
+   {
+    "from": "e2",
+    "to": "S",
+    "rel": "r"
+   },
+   {
+    "from": "e3",
+    "to": "S",
+    "rel": "r"
+   },
+   {
+    "from": "e4",
+    "to": "U",
+    "rel": "r"
+   },
+   {
+    "from": "T",
+    "to": "d1",
+    "rel": "u"
+   },
+   {
+    "from": "T",
+    "to": "d2",
+    "rel": "u"
+   },
+   {
+    "from": "U",
+    "to": "d2",
+    "rel": "u"
+   }
+  ],
+  "decisions": [
+   {
+    "_id": "d1",
+    "inputs": [
+     "T"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "d2",
+    "inputs": [
+     "T",
+     "U"
+    ],
+    "status": "active"
+   }
+  ]
+ },
+ "fault": "T",
+ "expected": {
+  "provenance": {
+   "fault": "T",
+   "actions": [
+    {
+     "id": "T",
+     "action": "delete",
+     "reason": null
+    },
+    {
+     "id": "e1",
+     "action": "retract",
+     "reason": "evidence_of_fault"
+    },
+    {
+     "id": "e2",
+     "action": "retract",
+     "reason": "evidence_of_fault"
+    },
+    {
+     "id": "S",
+     "action": "preserve",
+     "reason": "independent_support"
+    },
+    {
+     "id": "d1",
+     "action": "invalidate",
+     "reason": "lost_all_support"
+    },
+    {
+     "id": "d1",
+     "action": "replay",
+     "reason": null
+    },
+    {
+     "id": "d2",
+     "action": "preserve",
+     "reason": "independent_support"
+    }
+   ]
+  },
+  "label_only": {
+   "fault": "T",
+   "actions": [
+    {
+     "id": "T",
+     "action": "delete",
+     "reason": null
+    },
+    {
+     "id": "S",
+     "action": "preserve",
+     "reason": "independent_support"
+    },
+    {
+     "id": "d1",
+     "action": "invalidate",
+     "reason": "lost_all_support"
+    },
+    {
+     "id": "d1",
+     "action": "replay",
+     "reason": null
+    },
+    {
+     "id": "d2",
+     "action": "preserve",
+     "reason": "independent_support"
+    }
+   ]
+  }
+ }
+}

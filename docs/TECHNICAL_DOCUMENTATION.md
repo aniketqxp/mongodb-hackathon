@@ -8,7 +8,7 @@ We are building a domain-agnostic governed-memory core on MongoDB Atlas: an agen
 
 Track: **Memory You Can Govern**, Agents in Context Toronto Hackathon (Sat 14 Nov 2026, submissions due 5:00 PM ET, judging from 5:15).
 
-**The claim:** restricted content never enters memory or queued slates, and retracting one memory recalls only the decisions that depended on it. Decisions with independent support are preserved.
+**The claim:** restricted content never enters memory or queued slates, and retracting one memory recalls only the decisions that depended on it. Decisions with independent support are preserved. **A retracted memory stays retracted:** it cannot be re-derived from the evidence that produced it (section 4.1).
 
 **Two-part demo**
 
@@ -20,7 +20,7 @@ Track: **Memory You Can Govern**, Agents in Context Toronto Hackathon (Sat 14 No
 | Track question | Where it is answered |
 | --- | --- |
 | Leakage between clients or teams | Every record carries `pack_id` + `scope_id`; vector search pre-filters on scope; conformance check 3 |
-| Fix or drop wrong or expired memory | Retraction planner (delete, quarantine, invalidate, replay, preserve); TTL and decay |
+| Fix or drop wrong or expired memory | Retraction planner (delete, retract, quarantine, invalidate, replay, preserve); expiry sweep and decay |
 | Prove memory changed behavior | Receipt/diff view and LangSmith with/without-memory eval (D3) |
 | Who reads, how long it lives, how forgotten | Scope rules, expiry on every directive, audit ledger, "why" API |
 
@@ -51,7 +51,7 @@ flowchart TB
     LG["Ledger + why<br/>audit, provenance"]
   end
   PACK["Domain pack (data only, about 8 slots)<br/>node and edge types, gate predicate, decay curve,<br/>scope field, directive vocabulary, UI labels"]
-  ATLAS[("MongoDB Atlas sandbox<br/>events, nodes, edges, decisions, directives, history, packs<br/>Vector Search · $graphLookup · TTL")]
+  ATLAS[("MongoDB Atlas sandbox<br/>events, nodes, edges, decisions, directives, history, packs<br/>Vector Search · $graphLookup · schema validation")]
   H --> API
   C --> API
   API --> CORE
@@ -69,19 +69,19 @@ Seven generic collections hold everything. None has a domain word in its name or
 | Collection | Holds | Key fields | Indexes |
 | --- | --- | --- | --- |
 | `events` | Append-only raw observations (a view, a skip, a parent sentence) | `pack_id`, `scope_id`, `type`, `payload`, `ts`, `source` | `(pack_id, scope_id, ts)` |
-| `nodes` | Memory items: facts, preferences, derived beliefs, plus a vector | `pack_id`, `scope_id`, `kind`, `text`, `embedding`, `status`, `expires_at`, `support[]` | Atlas Vector Search on `embedding` with `pack_id` and `scope_id` as filter fields; TTL on `expires_at` |
+| `nodes` | Memory items: facts, preferences, derived beliefs, plus a vector | `pack_id`, `scope_id`, `kind`, `text`, `embedding`, `status`, `expires_at`, `support[]` | Atlas Vector Search on `embedding` with `pack_id` and `scope_id` as filter fields; plain index on `expires_at` (expiry sweep, no TTL) |
 | `edges` | Typed dependencies, memory → decision | `from`, `to`, `rel`, `pack_id`, `scope_id` | `from`, `to` (for `$graphLookup`) |
 | `decisions` | Actions the agent took (a slate, a ranking) with the node ids they used | `pack_id`, `scope_id`, `inputs[]`, `output`, `status`, `replay_of` | `(scope_id, ts)` |
-| `directives` | Typed policies: suppress, prioritize, retract | `pack_id`, `scope_id`, `type`, `target`, `expires_at`, `cap`, `confirmed_by` | `(scope_id, type)`; TTL on `expires_at` |
+| `directives` | Typed policies: suppress, prioritize, retract | `pack_id`, `scope_id`, `type`, `target`, `expires_at`, `cap`, `confirmed_by` | `(scope_id, type)`; plain index on `expires_at` (expiry sweep, no TTL) |
 | `history` | Audit record of every governance action (served by `GET /ledger`) | `actor`, `action`, `target`, `before`, `after`, `ts` | `(scope_id, ts)` |
 | `packs` | Domain packs: data-only config | `pack_id`, `slots`, `status` (`draft` / `active`), `conformance` result | `pack_id` unique |
 
 **Rules**
 
 - Every read and write is filtered by `pack_id` and `scope_id`. The vector search pre-filters on scope, so a query never sees another scope's vectors.
-- Memory states are `active`, `quarantined`, `invalidated`, `expired`. Nothing is hard-deleted without a `history` entry.
+- Memory states are `active`, `quarantined`, `invalidated`, `expired`, plus `retracted` for evidence nodes (contract v0.3). Nothing is hard-deleted without a `history` entry. Events are never modified.
 - Embeddings use Voyage `voyage-4-lite`. The sandbox's token allowance is for Voyage embedding and rerank only, not for chat LLMs.
-- TTL indexes remove expired nodes and directives. The retraction planner also runs on expiry, so dependents of an expired memory are recalled the same way as for a manual retraction.
+- **Expiry is a status change, not a TTL delete (contract v0.3).** A Mongo TTL index deletes documents silently and on its own schedule (about every 60 s), so the planner could never see what expired, and the expired node could not be audited. Instead the core runs an expiry sweep at the start of each request: anything past `expires_at` is set to `expired` and goes through the same recall path as a manual retraction. `expires_at` keeps a plain index.
 
 ## 4. Recall mechanism
 
@@ -89,11 +89,12 @@ When one memory is wrong, expired or unwanted, recall finds every decision that 
 
 **Pipeline (all steps are code; the LLM takes no part):**
 
-1. **Trace.** From the faulty node, walk `edges` with `$graphLookup` to collect every downstream node and decision (the fault's provenance set).
-2. **Independent-support check.** For each affected decision, ask whether it still has at least one supporting node outside the provenance set. If yes, it is *preserved*. If no, it is a rollback candidate. The check is deliberately lenient, as the paper's own limits suggest.
-3. **Plan.** Rules map each affected item to one action: `delete` (the faulty node), `quarantine` (derived beliefs awaiting review), `invalidate` (decisions that lost all support), `replay` (decisions to recompute), or `preserve`.
-4. **Replay.** Recompute only the invalidated decisions, with the faulty node excluded, and write new decisions with `replay_of` pointing at the old ones.
-5. **Ledger.** Every action is written to `history`, and the "why" API can answer "why was this recommended?" and "what did retracting X change?" from it.
+1. **Trace.** From the faulty node, walk `edges` with `$graphLookup` both ways: upstream to the evidence nodes that support it, downstream to every dependent node and decision (the fault's provenance set).
+2. **Retract evidence.** Evidence nodes upstream of the fault are set to `retracted` (never deleted). Other derived nodes that lose all active support are invalidated too, and those that keep support of their own are kept.
+3. **Independent-support check.** For each affected decision, ask whether it still has at least one supporting node outside the provenance set. If yes, it is *preserved*. If no, it is a rollback candidate. The check is deliberately lenient, as the paper's own limits suggest.
+4. **Plan.** Rules map each affected item to one action: `delete` (the faulty node; implemented as status `invalidated` plus a `history` entry, no hard delete), `retract` (its upstream evidence, contract v0.3), `quarantine` (derived beliefs awaiting review), `invalidate` (decisions that lost all support), `replay` (decisions to recompute), or `preserve`.
+5. **Replay.** Recompute only the invalidated decisions, with the faulty node excluded, and write new decisions with `replay_of` pointing at the old ones.
+6. **Ledger.** Every action is written to `history`, and the "why" API can answer "why was this recommended?" and "what did retracting X change?" from it.
 
 **Output of a plan** (JSON, identical for the Python reference and the Rust crate):
 
@@ -109,6 +110,33 @@ When one memory is wrong, expired or unwanted, recall finds every decision that 
   ]
 }
 ```
+
+### 4.1 Why step 2 exists: forgotten memories creep back
+
+Derived nodes (for example an interest built from several observed facts) are recomputed whenever new events arrive. If retraction only marks the derived node and leaves its evidence active, the next recompute derives it again under the same id, and the forgotten memory returns. Its sibling nodes, built from the same evidence, never notice. Nobody has to script this failure: it follows from recompute.
+
+**Derivation rule (core, no pack change):** a derived node's status is a pure function of its active supporters. It is `active` if and only if at least one parent (an edge whose source is a node) is active. Derived ids are deterministic (`node_{scope}_{kind}_{key}`), so a re-derivation lands on the same id and can be measured. **The core writes the provenance edges itself.** `POST /events` creates one evidence node (kind = the pack's first node-to-node `edge_types.from`), a `provenance` edge from the event to it, and an edge to every existing derived node whose key appears among the payload's string values. `payload.derives: [{"kind", "key"}]` is optional and only needed to create a *new* derived node. Seed graphs that already contain evidence-to-derived edges (like `data/graph.json`) work unmodified.
+
+**The experiment switch:** `RETRACTION_POLICY=label_only|provenance` (env, core). `label_only` skips step 2 and is the naive baseline. `provenance` is the governed default. Everything else is identical.
+
+**Measured on the team seed** (`python -m core.demo`: Atlas Sandbox, `pack_video_demo`, scenario `node_child_7_interest_spooky`, real routes, lexical search; `core/fixtures/runs/creep_back_seed.json`). Each session is one `POST /memory/search` for the target's text, which runs the same recompute under both policies:
+
+| policy | before retract | +1 session | +2 | +3 | evidence retracted | scenario match |
+|---|---|---|---|---|---|---|
+| `label_only` | active, rank 1 | active, rank 1 | active, rank 1 | active, rank 1 | 0 | yes |
+| `provenance` | active, rank 1 | invalidated, not returned | invalidated, not returned | invalidated, not returned | 4 | yes |
+
+Both policies invalidate and replay `dec_child_7_02` and `dec_child_7_03` and preserve `dec_child_7_08`, so the decision repair alone looks correct under the naive policy. The difference is that under `label_only` the forgotten node is re-derived (1 ledger `rederived` entry) and is back in memory from the first session.
+
+Earlier, on Aniket's prototype (synthetic fixture, local hash embeddings):
+
+| condition | before retract | +1 session | +2 | +3 |
+|---|---|---|---|---|
+| no memory | 0% | 0% | 0% | 0% |
+| `label_only` | 40% | 40% | 40% | 40% |
+| `provenance` | 40% | 0% | 0% | 0% |
+
+Share of a 10-item decision taken up by the retracted target. With 20 evidence events traced, `label_only` re-derived the node in 3 of 3 sessions and kept all 3 sibling memories marked as still justified; `provenance` invalidated them. A second, hand-written pack gave the same pattern with zero lines of core changed.
 
 **Known limits (from the paper, to say out loud in the demo):** recall needs instrumented provenance (we write edges at decision time), an upstream fault detector (the parent, a directive or TTL supplies it), resettable side effects (recommendations are recomputable), and a lenient support check. Stale-fault repair works best when the fault recurs, so the demo uses a scripted curve.
 
@@ -140,12 +168,14 @@ One LLM compiler pattern is used twice. The LLM only fills typed slots. A valida
 
 ## 6. Conformance suite
 
-A pack activates only when all 5 domain-neutral checks pass. The suite runs against the pack's own seeded data and uses no domain words, so the same code tests any pack. Owner: David (D2).
+A pack activates only when all 5 domain-neutral checks pass. The suite synthesises its fixture from the pack definition in throwaway scopes and uses no domain words, so the same code tests any pack with no test code per pack. **Owner: Aniket (core), proposed.** It runs inside `POST /packs/{id}/conformance` and needs core internals, so it lives in `core/`. D2 calls the route.
+
+Measured (`python -m core.conformance`, `core/fixtures/runs/conformance_log.txt`): `pack_video_demo` and the hand-written `pack_team_docs` (`core/fixtures/pack_docs.json`) both pass 5/5 under `provenance`; under `label_only` both score 4/5 and fail only check 1 (target active in 3/3 sessions after retraction). The log records both runs, so the naive baseline is evidence too.
 
 | # | Check | Passes when |
 | --- | --- | --- |
-| 1 | Retraction recalls dependents | Retracting a seeded node invalidates every decision that depended only on it |
-| 2 | Independent support preserved | A decision with a second supporting node outside the fault's provenance set survives retraction |
+| 1 | Retraction recalls dependents **and stays retracted** | Retracting a seeded node invalidates every decision that depended only on it, and the node is not re-derived and its target is absent from decisions over the next 3 sessions |
+| 2 | Independent support preserved | A decision with a second supporting node outside the fault's provenance set survives retraction, and no node left active depends only on retracted evidence |
 | 3 | No cross-scope reads | A query in scope A returns nothing from scope B, including through vector search |
 | 4 | Expiry removes memory and dependents | After a node's `expires_at`, it and its dependent decisions are recalled |
 | 5 | Gated content never enters memory | An item the gate rejects creates no node, no edge and no queued slate entry |
@@ -168,19 +198,14 @@ The harness, compilers and UI talk to the core only through these routes. See `O
 | `POST /events` | Append an observation; passes the gate first | Harness (J2) |
 | `POST /memory/search` | Scope-filtered vector search over `nodes` | Harness (J2) |
 | `POST /decisions` | Record a decision with its input node ids; writes edges | Harness (J2) |
-| `POST /directives` | Create a confirmed directive (suppress, prioritize, retract) | Directive compiler (D1) |
+| `POST /directives` | Create a confirmed directive (suppress, prioritize, retract). Accepted only with the compiler's shared-secret header, so `confirmed_by` cannot be forged by calling the core directly (`X-Compiler-Key`, contract v0.2) | Directive compiler (D1) |
 | `POST /retract` | Retract a node or directive; returns the plan and the replay result | UI (J1) |
-| `GET /directives` | List a scope's directives (active by default) | Harness (J2) |
 | `GET /why/{decision_id}` | Provenance and ledger entries for a decision | UI (J1) |
 | `GET /diff?retract={id}` | With/without diff of slates after a retraction | UI (J1), eval (D3) |
 | `GET /ledger` | Audit entries for a scope, newest first | UI (J1) |
 
-**Compiler service (David, port 8002):** `POST /directives/compile` `{pack_id, scope_id, text}` → `{directive, summary}`; `POST /directives/confirm` `{pack_id, scope_id, directive, pin}` → the core's `/directives` response. The PIN is checked server-side.
-
 **Conventions**
 
-- `not_confirmed` is HTTP 422; the core only accepts `POST /directives` with the compiler's shared secret (`X-Compiler-Key`), so the PIN cannot be bypassed.
-- Scope attributes (for example `max_maturity`) live in a `scope_profile` event; gate and scope fields cannot be targeted by directives.
 - Errors return `{"error": {"code": "...", "detail": "..."}}` with a stable `code`.
 - IDs are strings. Timestamps are ISO 8601 UTC.
 - A gated event returns `200` with `{"admitted": false, "reason": "..."}`. Nothing is written to `nodes` or `edges`.
@@ -213,7 +238,7 @@ A child's feed is built from watch memory. The parent can say, in plain words, w
 
 | Layer | Choice | Notes |
 | --- | --- | --- |
-| Database | MongoDB Atlas (the hackathon Sandbox) | `$vectorSearch` with scope pre-filter, `$graphLookup`, TTL indexes, schema validation, change streams |
+| Database | MongoDB Atlas (the hackathon Sandbox) | `$vectorSearch` with scope pre-filter, `$graphLookup`, `$jsonSchema` validation (contract v0.3 validators), change streams |
 | Core language | Python (PyMongo, FastAPI) | The spine |
 | Embeddings | Voyage `voyage-4-lite` | Covered by the sandbox's Voyage allowance |
 | Orchestration | LangChain / LangGraph | LangChain is an adapter layer, not a model |
@@ -224,9 +249,9 @@ A child's feed is built from watch memory. The parent can say, in plain words, w
 
 **Which LLM, and why not the sandbox:** the sandbox's token allowance covers Voyage embeddings and reranking only, so chat completions need another provider.
 
-- **Primary: Groq** `openai/gpt-oss-120b`. Strict structured output works on gpt-oss models via `method="json_schema"` (langchain-groq 0.3.8 or newer); it does not combine with streaming or tool use. Verified limits from our Groq console (14 Nov): 30 requests a minute, 1,000 requests a day, **8,000 tokens a minute** and 200,000 tokens a day. `openai/gpt-oss-20b` shows the same limits as its own row, so it is a candidate overflow model (confirm that limits are tracked per model before relying on it).
+- **Primary: Groq** `openai/gpt-oss-120b`. Strict structured output works on gpt-oss models via `method="json_schema"` (langchain-groq 0.3.8 or newer); it does not combine with streaming or tool use. Free limits are per organisation and published figures conflict (1,000 vs 14,400 requests a day), so trust the limits page in the Groq console.
 - **Fallback: OpenRouter.** OpenAI-compatible, so it is a base-URL swap. `:free` models are limited to 20 requests a minute and 50 a day, or 1,000 a day after a one-time purchase of at least $10 in credits. Free models can change or disappear without notice.
-- **Tokens bind before requests do.** The 8,000 tokens a minute cap allows about 3 compiler calls a minute at 2 to 3k tokens each, so use short retry and backoff. The 200,000 daily tokens allow roughly 70 to 80 calls a day (our estimate). Keep prompts compact, cache validated outputs, and reserve a fresh budget before judging.
+- **Tokens bind before requests do.** At the sampled Groq limit of 200,000 tokens a day and about 2 to 3k tokens per compiler call, plan on roughly 70 to 80 calls a day (our estimate). Keep prompts compact, cache validated outputs, and reserve a fresh budget before judging.
 
 **Environment variables** (in `.env`, never committed; `.env.example` with empty values is committed)
 
@@ -238,8 +263,10 @@ LLM_MODEL=openai/gpt-oss-120b
 GROQ_API_KEY=
 OPENROUTER_API_KEY=
 LANGSMITH_API_KEY=
-LANGSMITH_TRACING=false      # set true once LANGSMITH_API_KEY is filled in
+LANGSMITH_TRACING=true
 ELEVENLABS_API_KEY=
+RETRACTION_POLICY=provenance # provenance | label_only (eval baseline)
+COMPILER_SHARED_SECRET=      # compiler -> core POST /directives
 ```
 
 `get_llm()` returns a LangChain chat model from `LLM_PROVIDER`, `LLM_MODEL` and the matching key, so switching providers is an env change, not a code change.
@@ -263,7 +290,8 @@ flowchart LR
   G3["G3 Greatness<br/>Rust crate"]
   A1["A1 Aniket<br/>indexes, search"]
   A2["A2 Aniket<br/>recall + fixtures"]
-  A3["A3 Aniket<br/>real API, ~3:00"]
+  A3["A3 Aniket<br/>real API, ~3:45"]
+  A4["A4 Aniket<br/>conformance + 2nd pack"]
   D1["D1 David<br/>directive compiler"]
   D2["D2 David<br/>pack + conformance"]
   D3["D3 David<br/>eval + diff"]
@@ -275,6 +303,8 @@ flowchart LR
   A2 --> G3
   A2 --> D3
   A3 --> D2
+  A4 --> D2
+  A2 --> A4
   A3 --> J1
   D1 --> J1
   classDef main stroke-width:3px
@@ -285,19 +315,18 @@ Arrow means "waits on". G1 gates integration for everyone. Drop G3 first if time
 | Package | Owner | Scope | Waits on |
 | --- | --- | --- | --- |
 | G1 | Greatness | Repo hygiene, scaffold, `CLAUDE.md` and OPS files, env and `get_llm()`, contract v0, mock API | Nothing |
-| G2 | Greatness | 200-video catalog, taxonomy, scripted user curves, seed loader | G1 scaffold |
-| G3 | Greatness | Rust `recall-core` crate, go/no-go at 3:00 PM | A2 fixtures |
-| A1 | Aniket | Atlas collections, indexes, scoped vector search, ledger and TTL | G2 for seeding only |
-| A2 | Aniket | Provenance graph, support check, planner, replay (Python), plus JSON fixtures | Nothing |
-| A3 | Aniket | Real core API replacing the mock (about 3:00 PM) | A1, A2 |
-| D1 | David | Directive compiler (3 types), PIN-gated writes, confirm step, injection tests | G1 contract |
-| D2 | David | Pack compiler with cached fallback, 5-check conformance suite | G1 contract; A3 for live runs |
-| D3 | David | LangSmith tracing, 25-prompt dataset, with/without-memory eval, retract-one diff | A2 |
+| G2 | Greatness | 200-video catalog, taxonomy, scripted user curves, seed loader. **Add:** for events posted live, put the gate field (`maturity`) and the derived key (the topic) in the watch payload; the seed graph itself needs no change | G1 scaffold |
+| G3 | Greatness | Rust `recall-core` crate, go/no-go at 3:00 PM. If kept, add the `retract` action | A2 fixtures |
+| A1 | Aniket | Atlas collections, indexes, scoped vector search, ledger, expiry sweep (no TTL deletes) | G2 for seeding only |
+| A2 | Aniket | Provenance graph (both directions), evidence retraction, derivation rule, support check, planner, replay, `RETRACTION_POLICY` switch, plus JSON fixtures | Nothing |
+| A3 | Aniket | Real core API on the mock's shapes (revised target about 3:45 PM), compiler shared-secret check on `/directives` | A1, A2 |
+| A4 | Aniket | **New:** 5-check conformance runner behind `POST /packs/{id}/conformance`; hand-written second pack in contract schema (floor tier), placed in `data/` with Greatness's review | A2 |
+| D1 | David | Directive compiler (3 types), PIN-gated writes, confirm step, injection tests. **Add:** send the shared-secret header | G1 contract |
+| D2 | David | Pack compiler with cached fallback; calls the conformance route (runner moved to A4) | G1 contract; A3 for live runs |
+| D3 | David | LangSmith tracing, 25-prompt dataset, with/without-memory eval, retract-one diff. **Add:** creep-back table, 3 conditions (no memory, `label_only`, `provenance`) over 3 sessions after a retraction | A2 |
 | J1 | Jasmine | Typed UI: child feed, parent box with PIN card, receipt/diff, why-this | G1 mock, A3; D1 for the parent box (about 3:15 PM) |
 | J2 | Jasmine | Generic gate evaluator, restricted-content quarantine, slate generator | G2 catalog |
 | J3 | Jasmine | Demo script, 1-minute video, README, submission form, fallbacks | Everything, late |
-
-**Progress (14 Nov, 15:05):** G1, G2 and D1 are merged. J1 and J2 are merged and in progress. A1, A2 and A3 (Aniket) and D2, D3, G3, J3 have not landed on `main` yet. Contract is at v0.2. See `OPS/STATUS.md` for the live view.
 
 **Gates:** about 2:00 PM contract and pack schema frozen; 3:00 PM recall works end to end; 3:45 PM compiler, UI and PIN working; 4:15 PM feature freeze; submit by 4:45 PM, ahead of the 5:00 PM deadline.
 
@@ -336,6 +365,7 @@ The track asks us to prove memory changed behavior. D3 (David) produces that pro
 - A LangSmith dataset of 25 prompts (parent sentences, retractions, gated items).
 - Each run is traced twice, with memory and without, and the slate diff is stored as the evidence.
 - The headline test is **retract one**: remove a single memory, then show that only its dependents changed and independently supported items did not.
+- The second test is **creep-back**: the same retraction under three conditions (no memory, `label_only`, `provenance`), measured over the 3 sessions that follow. It shows that the retraction holds over time, not only right after it.
 - Every governance action is also in `history`, so the evidence does not depend on LangSmith retention (14 days on the free plan).
 
 **Demo script (J3), in order**
@@ -360,11 +390,30 @@ The track asks us to prove memory changed behavior. D3 (David) produces that pro
 | Secret leaked into the public repo | Low / High | `.gitignore` first; `precommit-check` skill; rotate any key that is pushed |
 | Scope creep into a dashboard | Medium / Medium | Feature freeze at 4:15 PM; UI limited to the five demo beats |
 
+| Retracted memory re-derived from its own evidence (creep-back) | High / High | Evidence retraction plus the derivation rule (section 4.1); conformance check 1 tests it over 3 sessions |
+
 **Open items**
 
+- [x] Contract v0.3 (section 15) folded into `OPS/CONTRACT.md`; announce in team chat.
 - [x] `.gitignore`, scaffold, contract v0.1 and mock API merged (G1).
-- [ ] Aniket: require `X-Compiler-Key` on core `POST /directives` and read `max_maturity` from the `scope_profile` event (A3).
 - [x] Audit collection is named `history` (matches the Atlas sandbox); the API keeps `GET /ledger`.
 - [ ] Buy the $10 OpenRouter credit with a spend cap (not blocking; before 3:00 PM).
 - [ ] A teammate runs one `with_structured_output` call on Groq `gpt-oss-120b` to confirm strict JSON works.
 - [ ] Check the participant guide's partner-resources section for extra credits.
+
+## 15. Contract v0.3 (folded into `OPS/CONTRACT.md`)
+
+Each change is additive except the TTL one. Contract v0.2 (Greatness) already added the trust header as `X-Compiler-Key` with HTTP 403 `forbidden`, so item 4 is done there.
+
+| # | Change | Why | Affects |
+| --- | --- | --- | --- |
+| 1 | Node `status` adds `retracted` (evidence nodes only) | Retraction must disable the evidence, not only the derived label (section 4.1) | CONTRACT §1, core |
+| 2 | Plan `action` adds `retract` | The plan has to show the evidence it retracted | CONTRACT §6, mock `PLAN`, Rust crate if kept |
+| 3 | Drop TTL indexes on `nodes.expires_at` and `directives.expires_at`; use a plain index plus the core's expiry sweep | A TTL delete is silent, so expired nodes can't be recalled or audited | CONTRACT §1, A1 |
+| 4 | `POST /directives` requires header `X-Compiler-Key` (env `COMPILER_SHARED_SECRET`); otherwise 403 `forbidden` (already in v0.2) | Closes the PIN bypass David raised in BLOCKERS 14:34 | CONTRACT §4, D1, `.env.example` |
+| 5 | The core writes event-to-memory provenance edges itself; `payload.derives: [{kind, key}]` is optional, only to create a new derived node | Derivation without domain words; the seed works unmodified | CONTRACT §4 note, J2 harness |
+| 6 | Conformance check 1 keeps its name; its definition adds "and stays retracted over 3 sessions" | Tests that the retraction holds over the next 3 sessions | CONTRACT §5, mock |
+| 7 | Env `RETRACTION_POLICY` (`provenance` default, `label_only` for the eval baseline) | One switch for the ablation | `.env.example`, D3 |
+| 8 | `$jsonSchema` validators on all 7 collections (`core/db.py`, `validationLevel: moderate`) | Schema validation is part of the governance story; the old prototype validators rejected the team seed | CONTRACT §1, A1 |
+
+Unchanged: the pack's 8 slots, every route path and body, the directive schema, and the plan JSON shape. The gate reads `value_from_scope` from the latest `scope_profile` event, as D1 asked.

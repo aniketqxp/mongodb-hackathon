@@ -1,0 +1,15 @@
+{
+  "pack_id": "pack_team_docs",
+  "scope_field": "scope_id",
+  "node_types": ["doc_edit", "expertise"],
+  "edge_types": [
+    {"rel": "evidences", "from": "doc_edit", "to": "expertise"},
+    {"rel": "routed_by", "from": "expertise", "to": "decision"}
+  ],
+  "gate": [
+    {"field": "classification", "op": "lte", "value": null, "value_from_scope": "clearance"}
+  ],
+  "decay": {"kind": "ttl", "seconds": 2592000},
+  "directive_vocab": ["suppress", "prioritize", "retract"],
+  "labels": {"item": "document", "scope": "teammate", "directive": "routing rule"}
+}

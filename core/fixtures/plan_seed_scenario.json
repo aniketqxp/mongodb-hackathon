@@ -1,0 +1,377 @@
+{
+ "graph": {
+  "nodes": [
+   {
+    "_id": "node_child_7_fact_00",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_01",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_02",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_03",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_04",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_05",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_06",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_07",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_08",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_09",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_10",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_11",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_12",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_13",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_14",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_fact_15",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_interest_art_craft",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_interest_spooky",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_interest_animals",
+    "status": "active"
+   },
+   {
+    "_id": "node_child_7_interest_space",
+    "status": "active"
+   }
+  ],
+  "edges": [
+   {
+    "from": "node_child_7_fact_00",
+    "to": "node_child_7_interest_art_craft",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_12",
+    "to": "node_child_7_interest_art_craft",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_15",
+    "to": "node_child_7_interest_art_craft",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_01",
+    "to": "node_child_7_interest_spooky",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_02",
+    "to": "node_child_7_interest_spooky",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_07",
+    "to": "node_child_7_interest_spooky",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_08",
+    "to": "node_child_7_interest_spooky",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_03",
+    "to": "node_child_7_interest_animals",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_04",
+    "to": "node_child_7_interest_animals",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_09",
+    "to": "node_child_7_interest_animals",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_11",
+    "to": "node_child_7_interest_animals",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_13",
+    "to": "node_child_7_interest_animals",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_05",
+    "to": "node_child_7_interest_space",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_06",
+    "to": "node_child_7_interest_space",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_10",
+    "to": "node_child_7_interest_space",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_fact_14",
+    "to": "node_child_7_interest_space",
+    "rel": "supports"
+   },
+   {
+    "from": "node_child_7_interest_animals",
+    "to": "dec_child_7_00",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_animals",
+    "to": "dec_child_7_01",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_spooky",
+    "to": "dec_child_7_02",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_spooky",
+    "to": "dec_child_7_03",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_space",
+    "to": "dec_child_7_04",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_space",
+    "to": "dec_child_7_05",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_art_craft",
+    "to": "dec_child_7_06",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_art_craft",
+    "to": "dec_child_7_07",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_spooky",
+    "to": "dec_child_7_08",
+    "rel": "used_in"
+   },
+   {
+    "from": "node_child_7_interest_animals",
+    "to": "dec_child_7_08",
+    "rel": "used_in"
+   }
+  ],
+  "decisions": [
+   {
+    "_id": "dec_child_7_00",
+    "inputs": [
+     "node_child_7_interest_animals"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_01",
+    "inputs": [
+     "node_child_7_interest_animals"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_02",
+    "inputs": [
+     "node_child_7_interest_spooky"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_03",
+    "inputs": [
+     "node_child_7_interest_spooky"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_04",
+    "inputs": [
+     "node_child_7_interest_space"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_05",
+    "inputs": [
+     "node_child_7_interest_space"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_06",
+    "inputs": [
+     "node_child_7_interest_art_craft"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_07",
+    "inputs": [
+     "node_child_7_interest_art_craft"
+    ],
+    "status": "active"
+   },
+   {
+    "_id": "dec_child_7_08",
+    "inputs": [
+     "node_child_7_interest_spooky",
+     "node_child_7_interest_animals"
+    ],
+    "status": "active"
+   }
+  ]
+ },
+ "fault": "node_child_7_interest_spooky",
+ "expected": {
+  "provenance": {
+   "fault": "node_child_7_interest_spooky",
+   "actions": [
+    {
+     "id": "node_child_7_interest_spooky",
+     "action": "delete",
+     "reason": null
+    },
+    {
+     "id": "node_child_7_fact_01",
+     "action": "retract",
+     "reason": "evidence_of_fault"
+    },
+    {
+     "id": "node_child_7_fact_02",
+     "action": "retract",
+     "reason": "evidence_of_fault"
+    },
+    {
+     "id": "node_child_7_fact_07",
+     "action": "retract",
+     "reason": "evidence_of_fault"
+    },
+    {
+     "id": "node_child_7_fact_08",
+     "action": "retract",
+     "reason": "evidence_of_fault"
+    },
+    {
+     "id": "dec_child_7_02",
+     "action": "invalidate",
+     "reason": "lost_all_support"
+    },
+    {
+     "id": "dec_child_7_02",
+     "action": "replay",
+     "reason": null
+    },
+    {
+     "id": "dec_child_7_03",
+     "action": "invalidate",
+     "reason": "lost_all_support"
+    },
+    {
+     "id": "dec_child_7_03",
+     "action": "replay",
+     "reason": null
+    },
+    {
+     "id": "dec_child_7_08",
+     "action": "preserve",
+     "reason": "independent_support"
+    }
+   ]
+  },
+  "label_only": {
+   "fault": "node_child_7_interest_spooky",
+   "actions": [
+    {
+     "id": "node_child_7_interest_spooky",
+     "action": "delete",
+     "reason": null
+    },
+    {
+     "id": "dec_child_7_02",
+     "action": "invalidate",
+     "reason": "lost_all_support"
+    },
+    {
+     "id": "dec_child_7_02",
+     "action": "replay",
+     "reason": null
+    },
+    {
+     "id": "dec_child_7_03",
+     "action": "invalidate",
+     "reason": "lost_all_support"
+    },
+    {
+     "id": "dec_child_7_03",
+     "action": "replay",
+     "reason": null
+    },
+    {
+     "id": "dec_child_7_08",
+     "action": "preserve",
+     "reason": "independent_support"
+    }
+   ]
+  }
+ }
+}
