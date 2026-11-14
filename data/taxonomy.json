@@ -1,0 +1,26 @@
+{
+  "topics": [
+    "animals",
+    "space",
+    "science",
+    "music",
+    "art_craft",
+    "cooking",
+    "gaming",
+    "nature",
+    "history",
+    "comedy",
+    "spooky",
+    "action"
+  ],
+  "maturity": {
+    "0": "all ages",
+    "1": "7+",
+    "2": "10+",
+    "3": "13+"
+  },
+  "restricted_tags": [
+    "scary",
+    "violence"
+  ]
+}

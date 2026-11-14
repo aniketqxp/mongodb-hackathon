@@ -1,0 +1,1522 @@
+{
+  "events": [
+    {
+      "_id": "evt_child_7_profile",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "scope_profile",
+      "payload": {
+        "max_maturity": 1,
+        "label": "Child A (7)"
+      },
+      "ts": "2026-10-31T08:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_profile",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "scope_profile",
+      "payload": {
+        "max_maturity": 2,
+        "label": "Child B (12)"
+      },
+      "ts": "2026-10-31T08:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_004",
+        "completion": 0.75
+      },
+      "ts": "2026-10-31T15:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_106",
+        "completion": 0.66
+      },
+      "ts": "2026-10-31T16:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_034",
+        "completion": 0.86
+      },
+      "ts": "2026-11-01T17:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_144",
+        "completion": 0.92
+      },
+      "ts": "2026-11-02T18:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_108",
+        "completion": 0.71
+      },
+      "ts": "2026-11-03T19:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_085",
+        "completion": 0.74
+      },
+      "ts": "2026-11-04T15:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_013",
+        "completion": 0.91
+      },
+      "ts": "2026-11-05T16:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_094",
+        "completion": 0.67
+      },
+      "ts": "2026-11-06T17:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_08",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_118",
+        "completion": 0.92
+      },
+      "ts": "2026-11-07T18:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_09",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_120",
+        "completion": 0.7
+      },
+      "ts": "2026-11-07T19:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_10",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_157",
+        "completion": 0.69
+      },
+      "ts": "2026-11-08T15:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_11",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_180",
+        "completion": 0.98
+      },
+      "ts": "2026-11-09T16:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_12",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_136",
+        "completion": 0.92
+      },
+      "ts": "2026-11-10T17:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_13",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_192",
+        "completion": 1.0
+      },
+      "ts": "2026-11-11T18:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_14",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_181",
+        "completion": 0.99
+      },
+      "ts": "2026-11-12T19:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_7_15",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_064",
+        "completion": 0.7
+      },
+      "ts": "2026-11-13T15:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_035",
+        "completion": 0.65
+      },
+      "ts": "2026-10-31T15:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_074",
+        "completion": 0.83
+      },
+      "ts": "2026-10-31T16:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_174",
+        "completion": 0.87
+      },
+      "ts": "2026-11-01T17:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_093",
+        "completion": 0.89
+      },
+      "ts": "2026-11-02T18:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_189",
+        "completion": 0.71
+      },
+      "ts": "2026-11-03T19:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_198",
+        "completion": 0.68
+      },
+      "ts": "2026-11-04T15:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_155",
+        "completion": 0.81
+      },
+      "ts": "2026-11-05T16:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_129",
+        "completion": 0.85
+      },
+      "ts": "2026-11-06T17:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_08",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_083",
+        "completion": 0.95
+      },
+      "ts": "2026-11-07T18:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_09",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_146",
+        "completion": 0.67
+      },
+      "ts": "2026-11-08T19:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_10",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_186",
+        "completion": 0.87
+      },
+      "ts": "2026-11-09T15:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_11",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_162",
+        "completion": 0.67
+      },
+      "ts": "2026-11-10T16:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_12",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_122",
+        "completion": 0.71
+      },
+      "ts": "2026-11-11T17:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_13",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_018",
+        "completion": 0.97
+      },
+      "ts": "2026-11-12T18:00:00Z",
+      "source": "seed"
+    },
+    {
+      "_id": "evt_child_12_14",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "type": "watch",
+      "payload": {
+        "video_id": "vid_014",
+        "completion": 0.65
+      },
+      "ts": "2026-11-13T19:00:00Z",
+      "source": "seed"
+    }
+  ],
+  "nodes": [
+    {
+      "_id": "node_child_7_fact_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Simple Paper Crafts (art_craft)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Shadowy Mazes (spooky)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Haunted Stories (spooky)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Brave Puppies (animals)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Clever Otters (animals)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Distant Rockets (space)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Giant Planets (space)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Haunted Mazes (spooky)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_08",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Whispering Mazes (spooky)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_09",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Funny Puppies (animals)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_10",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Bright Comets (space)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_11",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Funny Pandas (animals)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_12",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Colorful Clay Models (art_craft)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_13",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Tiny Pandas (animals)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_14",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Amazing Moons (space)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_fact_15",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "watch_fact",
+      "text": "watched Simple Drawings (art_craft)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_7_interest_art_craft",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "interest",
+      "text": "likes art craft",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_7_fact_00",
+        "node_child_7_fact_12",
+        "node_child_7_fact_15"
+      ]
+    },
+    {
+      "_id": "node_child_7_interest_spooky",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "interest",
+      "text": "likes spooky",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_7_fact_01",
+        "node_child_7_fact_02",
+        "node_child_7_fact_07",
+        "node_child_7_fact_08"
+      ]
+    },
+    {
+      "_id": "node_child_7_interest_animals",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "interest",
+      "text": "likes animals",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_7_fact_03",
+        "node_child_7_fact_04",
+        "node_child_7_fact_09",
+        "node_child_7_fact_11",
+        "node_child_7_fact_13"
+      ]
+    },
+    {
+      "_id": "node_child_7_interest_space",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "kind": "interest",
+      "text": "likes space",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_7_fact_05",
+        "node_child_7_fact_06",
+        "node_child_7_fact_10",
+        "node_child_7_fact_14"
+      ]
+    },
+    {
+      "_id": "node_child_12_fact_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Final Chases (action)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Messy Volcanoes (science)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Mystery Adventures (gaming)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Silly Pranks (comedy)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Goofy Impressions (comedy)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Cozy Racers (gaming)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Final Stunts (action)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Goofy Bloopers (comedy)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_08",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Explosive Battles (action)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_09",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Fizzy Magnets (science)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_10",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Epic Racers (gaming)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_11",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Pixel Adventures (gaming)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_12",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Easy Magnets (science)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_13",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Cozy Builders (gaming)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_fact_14",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "watch_fact",
+      "text": "watched Messy Experiments (science)",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": []
+    },
+    {
+      "_id": "node_child_12_interest_action",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "interest",
+      "text": "likes action",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_12_fact_00",
+        "node_child_12_fact_06",
+        "node_child_12_fact_08"
+      ]
+    },
+    {
+      "_id": "node_child_12_interest_science",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "interest",
+      "text": "likes science",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_12_fact_01",
+        "node_child_12_fact_09",
+        "node_child_12_fact_12",
+        "node_child_12_fact_14"
+      ]
+    },
+    {
+      "_id": "node_child_12_interest_gaming",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "interest",
+      "text": "likes gaming",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_12_fact_02",
+        "node_child_12_fact_05",
+        "node_child_12_fact_10",
+        "node_child_12_fact_11",
+        "node_child_12_fact_13"
+      ]
+    },
+    {
+      "_id": "node_child_12_interest_comedy",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "kind": "interest",
+      "text": "likes comedy",
+      "embedding": null,
+      "status": "active",
+      "expires_at": null,
+      "support": [
+        "node_child_12_fact_03",
+        "node_child_12_fact_04",
+        "node_child_12_fact_07"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "_id": "edge_node_child_7_fact_00_node_child_7_interest_art_craft",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_00",
+      "to": "node_child_7_interest_art_craft",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_12_node_child_7_interest_art_craft",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_12",
+      "to": "node_child_7_interest_art_craft",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_15_node_child_7_interest_art_craft",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_15",
+      "to": "node_child_7_interest_art_craft",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_01_node_child_7_interest_spooky",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_01",
+      "to": "node_child_7_interest_spooky",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_02_node_child_7_interest_spooky",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_02",
+      "to": "node_child_7_interest_spooky",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_07_node_child_7_interest_spooky",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_07",
+      "to": "node_child_7_interest_spooky",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_08_node_child_7_interest_spooky",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_08",
+      "to": "node_child_7_interest_spooky",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_03_node_child_7_interest_animals",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_03",
+      "to": "node_child_7_interest_animals",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_04_node_child_7_interest_animals",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_04",
+      "to": "node_child_7_interest_animals",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_09_node_child_7_interest_animals",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_09",
+      "to": "node_child_7_interest_animals",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_11_node_child_7_interest_animals",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_11",
+      "to": "node_child_7_interest_animals",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_13_node_child_7_interest_animals",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_13",
+      "to": "node_child_7_interest_animals",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_05_node_child_7_interest_space",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_05",
+      "to": "node_child_7_interest_space",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_06_node_child_7_interest_space",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_06",
+      "to": "node_child_7_interest_space",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_10_node_child_7_interest_space",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_10",
+      "to": "node_child_7_interest_space",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_fact_14_node_child_7_interest_space",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_fact_14",
+      "to": "node_child_7_interest_space",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_7_interest_animals_dec_child_7_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_animals",
+      "to": "dec_child_7_00",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_animals_dec_child_7_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_animals",
+      "to": "dec_child_7_01",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_spooky_dec_child_7_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_spooky",
+      "to": "dec_child_7_02",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_spooky_dec_child_7_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_spooky",
+      "to": "dec_child_7_03",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_space_dec_child_7_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_space",
+      "to": "dec_child_7_04",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_space_dec_child_7_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_space",
+      "to": "dec_child_7_05",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_art_craft_dec_child_7_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_art_craft",
+      "to": "dec_child_7_06",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_art_craft_dec_child_7_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_art_craft",
+      "to": "dec_child_7_07",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_spooky_dec_child_7_08",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_spooky",
+      "to": "dec_child_7_08",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_7_interest_animals_dec_child_7_08",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "from": "node_child_7_interest_animals",
+      "to": "dec_child_7_08",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_fact_00_node_child_12_interest_action",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_00",
+      "to": "node_child_12_interest_action",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_06_node_child_12_interest_action",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_06",
+      "to": "node_child_12_interest_action",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_08_node_child_12_interest_action",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_08",
+      "to": "node_child_12_interest_action",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_01_node_child_12_interest_science",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_01",
+      "to": "node_child_12_interest_science",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_09_node_child_12_interest_science",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_09",
+      "to": "node_child_12_interest_science",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_12_node_child_12_interest_science",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_12",
+      "to": "node_child_12_interest_science",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_14_node_child_12_interest_science",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_14",
+      "to": "node_child_12_interest_science",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_02_node_child_12_interest_gaming",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_02",
+      "to": "node_child_12_interest_gaming",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_05_node_child_12_interest_gaming",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_05",
+      "to": "node_child_12_interest_gaming",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_10_node_child_12_interest_gaming",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_10",
+      "to": "node_child_12_interest_gaming",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_11_node_child_12_interest_gaming",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_11",
+      "to": "node_child_12_interest_gaming",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_13_node_child_12_interest_gaming",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_13",
+      "to": "node_child_12_interest_gaming",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_03_node_child_12_interest_comedy",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_03",
+      "to": "node_child_12_interest_comedy",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_04_node_child_12_interest_comedy",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_04",
+      "to": "node_child_12_interest_comedy",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_fact_07_node_child_12_interest_comedy",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_fact_07",
+      "to": "node_child_12_interest_comedy",
+      "rel": "supports"
+    },
+    {
+      "_id": "edge_node_child_12_interest_gaming_dec_child_12_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_gaming",
+      "to": "dec_child_12_00",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_interest_gaming_dec_child_12_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_gaming",
+      "to": "dec_child_12_01",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_interest_science_dec_child_12_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_science",
+      "to": "dec_child_12_02",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_interest_science_dec_child_12_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_science",
+      "to": "dec_child_12_03",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_interest_action_dec_child_12_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_action",
+      "to": "dec_child_12_04",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_interest_action_dec_child_12_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_action",
+      "to": "dec_child_12_05",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_interest_comedy_dec_child_12_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_comedy",
+      "to": "dec_child_12_06",
+      "rel": "used_in"
+    },
+    {
+      "_id": "edge_node_child_12_interest_comedy_dec_child_12_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "from": "node_child_12_interest_comedy",
+      "to": "dec_child_12_07",
+      "rel": "used_in"
+    }
+  ],
+  "decisions": [
+    {
+      "_id": "dec_child_7_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_animals"
+      ],
+      "output": {
+        "video_id": "vid_072",
+        "title": "Tiny Otters"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_animals"
+      ],
+      "output": {
+        "video_id": "vid_036",
+        "title": "Sleepy Penguins"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_spooky"
+      ],
+      "output": {
+        "video_id": "vid_058",
+        "title": "Whispering Stories"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_spooky"
+      ],
+      "output": {
+        "video_id": "vid_022",
+        "title": "Midnight Stories"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_space"
+      ],
+      "output": {
+        "video_id": "vid_157",
+        "title": "Bright Comets"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_space"
+      ],
+      "output": {
+        "video_id": "vid_085",
+        "title": "Distant Rockets"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_art_craft"
+      ],
+      "output": {
+        "video_id": "vid_064",
+        "title": "Simple Drawings"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_art_craft"
+      ],
+      "output": {
+        "video_id": "vid_040",
+        "title": "Recycled Paper Crafts"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_7_08",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_7",
+      "inputs": [
+        "node_child_7_interest_spooky",
+        "node_child_7_interest_animals"
+      ],
+      "output": {
+        "video_id": "vid_199",
+        "title": "Haunted Zoo Night"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_00",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_gaming"
+      ],
+      "output": {
+        "video_id": "vid_006",
+        "title": "Epic Builders"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_01",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_gaming"
+      ],
+      "output": {
+        "video_id": "vid_042",
+        "title": "Pixel Builders"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_02",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_science"
+      ],
+      "output": {
+        "video_id": "vid_050",
+        "title": "Wild Experiments"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_03",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_science"
+      ],
+      "output": {
+        "video_id": "vid_014",
+        "title": "Messy Experiments"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_04",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_action"
+      ],
+      "output": {
+        "video_id": "vid_011",
+        "title": "Fast Chases"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_05",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_action"
+      ],
+      "output": {
+        "video_id": "vid_131",
+        "title": "Fast Stunts"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_06",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_comedy"
+      ],
+      "output": {
+        "video_id": "vid_021",
+        "title": "Awkward Skits"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    },
+    {
+      "_id": "dec_child_12_07",
+      "pack_id": "pack_video_demo",
+      "scope_id": "child_12",
+      "inputs": [
+        "node_child_12_interest_comedy"
+      ],
+      "output": {
+        "video_id": "vid_141",
+        "title": "Awkward Bloopers"
+      },
+      "status": "active",
+      "replay_of": null,
+      "ts": "2026-11-14T09:00:00Z"
+    }
+  ]
+}
