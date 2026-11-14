@@ -102,16 +102,18 @@ def run(db, pack_id, pol="provenance", record=True):
         out = engine.retract(db, {"pack_id": pack_id, "scope_id": A, "target_id": T, "reason": "conformance"}, pol,
                              actor="conformance")
         t0 = now()
-        seen = []
+        seen, modes = [], set()
         for _ in range(SESSIONS):
-            res = engine.search(db, {"pack_id": pack_id, "scope_id": A, "query": f"{D} t", "k": 10})["results"]
+            sr = engine.search(db, {"pack_id": pack_id, "scope_id": A, "query": f"{D} t", "k": 10})
+            res = sr["results"]
+            modes.add(sr["mode"])
             seen.append(st(T) == "active" or any(r["node_id"] == T for r in res))
         rederived = db.history.count_documents({"scope_id": A, "action": "rederived", "target": T, "ts": {"$gte": t0}})
         d1_doc = db.decisions.find_one({"_id": d1})
         ok1 = d1 in out["replayed"] and d1_doc["status"] == "replayed" and not any(seen) and rederived == 0
         checks.append((ok1, f"policy={pol}; d1 replayed={d1 in out['replayed']}; target active in "
                             f"{sum(seen)}/{SESSIONS} sessions; re-derived {rederived}x; evidence retracted "
-                            f"{len(out['trace']['evidence']) if pol == 'provenance' else 0}"))
+                            f"{len(out['trace']['evidence']) if pol == 'provenance' else 0}; search {'/'.join(sorted(modes))}"))
 
         # 2 independent support preserved: d2 keeps U; sibling S keeps its own evidence e3
         acts = {(a["id"], a["action"]) for a in out["plan"]["actions"]}
