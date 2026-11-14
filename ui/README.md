@@ -2,14 +2,17 @@
 
 Plain JavaScript UI with no build step and no Node, served by a stdlib Python server that runs the J2 harness and proxies read-only core routes.
 
-## Run
+## Run (one command)
 
 ```bash
-.venv/bin/uvicorn mock.app:app --port 8001   # terminal 1: mock API
-python3 ui/server.py                          # terminal 2: UI on http://127.0.0.1:8080
+python3.12 -m venv .venv && .venv/bin/pip install -r mock/requirements.txt -r compiler/requirements.txt   # once
+cp .env.example .env    # once; set DIRECTIVE_PIN (the parent PIN) and GROQ_API_KEY
+ui/run_demo.sh          # mock :8001 + compiler :8002 + UI :8080, opens the browser; Ctrl+C stops all
 ```
 
-Env (all optional): `API_BASE` (default `http://127.0.0.1:8001`; point at the real A3 API to switch), `UI_PORT` (8080), `DEMO_PIN` (default `1234`; a demo gate, not real auth), `HARNESS_MEMORY` (`seed`|`api`).
+`--restart` stops anything already on those ports first; `--no-open` skips the browser. Logs go to `.demo-logs/`. The script loads `.env`, needs Python 3.10+, and fills empty `COMPILER_DATA_DIR`/`CORE_API_URL` with working defaults. Set `API_BASE` in `.env` to the real core API to skip the mock.
+
+Env (all optional): `API_BASE` (core API, default the mock on :8001), `UI_PORT` (8080), `DEMO_PIN` (defaults to `DIRECTIVE_PIN`; a demo gate, not real auth), `HARNESS_MEMORY` (`seed`|`api`).
 
 ## What it does
 
