@@ -1,0 +1,523 @@
+[
+  {
+    "policy": "label_only",
+    "before": {
+      "status": "active",
+      "rank": 1,
+      "mode": "vector"
+    },
+    "sessions": [
+      {
+        "status": "active",
+        "rank": null,
+        "mode": "vector"
+      },
+      {
+        "status": "active",
+        "rank": 1,
+        "mode": "vector"
+      },
+      {
+        "status": "active",
+        "rank": 1,
+        "mode": "vector"
+      }
+    ],
+    "rederived_events": 1,
+    "evidence_retracted": [],
+    "invalidated": [
+      "dec_child_7_02",
+      "dec_child_7_03"
+    ],
+    "preserved": [
+      "dec_child_7_08"
+    ],
+    "replayed": [
+      "dec_child_7_02",
+      "dec_child_7_03"
+    ],
+    "plan": {
+      "fault": "node_child_7_interest_spooky",
+      "actions": [
+        {
+          "id": "node_child_7_interest_spooky",
+          "action": "delete",
+          "reason": null
+        },
+        {
+          "id": "dec_child_7_02",
+          "action": "invalidate",
+          "reason": "lost_all_support"
+        },
+        {
+          "id": "dec_child_7_02",
+          "action": "replay",
+          "reason": null
+        },
+        {
+          "id": "dec_child_7_03",
+          "action": "invalidate",
+          "reason": "lost_all_support"
+        },
+        {
+          "id": "dec_child_7_03",
+          "action": "replay",
+          "reason": null
+        },
+        {
+          "id": "dec_child_7_08",
+          "action": "preserve",
+          "reason": "independent_support"
+        }
+      ]
+    },
+    "diff": {
+      "before": [
+        {
+          "decision_id": "dec_child_7_02",
+          "output": {
+            "video_id": "vid_058",
+            "title": "Whispering Stories"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky"
+          ]
+        },
+        {
+          "decision_id": "dec_child_7_03",
+          "output": {
+            "video_id": "vid_022",
+            "title": "Midnight Stories"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky"
+          ]
+        },
+        {
+          "decision_id": "dec_child_7_08",
+          "output": {
+            "video_id": "vid_199",
+            "title": "Haunted Zoo Night"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky",
+            "node_child_7_interest_animals"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "decision_id": "dec_child_7_402e6717e4",
+          "output": {
+            "basis": "likes animals",
+            "replaces": {
+              "video_id": "vid_058",
+              "title": "Whispering Stories"
+            }
+          },
+          "inputs": [
+            "node_child_7_interest_animals"
+          ],
+          "replay_of": "dec_child_7_02"
+        },
+        {
+          "decision_id": "dec_child_7_d3ad5e1a03",
+          "output": {
+            "basis": "likes animals",
+            "replaces": {
+              "video_id": "vid_022",
+              "title": "Midnight Stories"
+            }
+          },
+          "inputs": [
+            "node_child_7_interest_animals"
+          ],
+          "replay_of": "dec_child_7_03"
+        },
+        {
+          "decision_id": "dec_child_7_08",
+          "output": {
+            "video_id": "vid_199",
+            "title": "Haunted Zoo Night"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky",
+            "node_child_7_interest_animals"
+          ]
+        }
+      ],
+      "changed": [
+        "dec_child_7_02",
+        "dec_child_7_03"
+      ],
+      "preserved": [
+        "dec_child_7_08"
+      ],
+      "dry_run": false
+    },
+    "why_first_replay": {
+      "decision": {
+        "decision_id": "dec_child_7_402e6717e4",
+        "inputs": [
+          "node_child_7_interest_animals"
+        ],
+        "output": {
+          "basis": "likes animals",
+          "replaces": {
+            "video_id": "vid_058",
+            "title": "Whispering Stories"
+          }
+        },
+        "status": "active",
+        "replay_of": "dec_child_7_02",
+        "ts": "2026-11-14T20:46:59.825784Z"
+      },
+      "provenance": [
+        {
+          "node_id": "node_child_7_interest_animals",
+          "rel": "used_in",
+          "to": "dec_child_7_402e6717e4",
+          "depth": 0,
+          "kind": "interest",
+          "status": "active",
+          "text": "likes animals"
+        },
+        {
+          "node_id": "node_child_7_fact_03",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Brave Puppies (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_04",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Clever Otters (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_09",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Funny Puppies (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_11",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Funny Pandas (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_13",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Tiny Pandas (animals)"
+        }
+      ],
+      "ledger": [
+        {
+          "actor": "core",
+          "action": "decision_created",
+          "target": "dec_child_7_402e6717e4",
+          "before": null,
+          "after": {
+            "inputs": [
+              "node_child_7_interest_animals"
+            ],
+            "replay_of": "dec_child_7_02"
+          },
+          "ts": "2026-11-14T20:47:00.005469Z",
+          "pack_id": "pack_video_demo",
+          "scope_id": "child_7"
+        }
+      ]
+    }
+  },
+  {
+    "policy": "provenance",
+    "before": {
+      "status": "active",
+      "rank": 1,
+      "mode": "vector"
+    },
+    "sessions": [
+      {
+        "status": "invalidated",
+        "rank": null,
+        "mode": "vector"
+      },
+      {
+        "status": "invalidated",
+        "rank": null,
+        "mode": "vector"
+      },
+      {
+        "status": "invalidated",
+        "rank": null,
+        "mode": "vector"
+      }
+    ],
+    "rederived_events": 0,
+    "evidence_retracted": [
+      "node_child_7_fact_01",
+      "node_child_7_fact_02",
+      "node_child_7_fact_07",
+      "node_child_7_fact_08"
+    ],
+    "invalidated": [
+      "dec_child_7_02",
+      "dec_child_7_03"
+    ],
+    "preserved": [
+      "dec_child_7_08"
+    ],
+    "replayed": [
+      "dec_child_7_02",
+      "dec_child_7_03"
+    ],
+    "plan": {
+      "fault": "node_child_7_interest_spooky",
+      "actions": [
+        {
+          "id": "node_child_7_interest_spooky",
+          "action": "delete",
+          "reason": null
+        },
+        {
+          "id": "node_child_7_fact_01",
+          "action": "retract",
+          "reason": "evidence_of_fault"
+        },
+        {
+          "id": "node_child_7_fact_02",
+          "action": "retract",
+          "reason": "evidence_of_fault"
+        },
+        {
+          "id": "node_child_7_fact_07",
+          "action": "retract",
+          "reason": "evidence_of_fault"
+        },
+        {
+          "id": "node_child_7_fact_08",
+          "action": "retract",
+          "reason": "evidence_of_fault"
+        },
+        {
+          "id": "dec_child_7_02",
+          "action": "invalidate",
+          "reason": "lost_all_support"
+        },
+        {
+          "id": "dec_child_7_02",
+          "action": "replay",
+          "reason": null
+        },
+        {
+          "id": "dec_child_7_03",
+          "action": "invalidate",
+          "reason": "lost_all_support"
+        },
+        {
+          "id": "dec_child_7_03",
+          "action": "replay",
+          "reason": null
+        },
+        {
+          "id": "dec_child_7_08",
+          "action": "preserve",
+          "reason": "independent_support"
+        }
+      ]
+    },
+    "diff": {
+      "before": [
+        {
+          "decision_id": "dec_child_7_02",
+          "output": {
+            "video_id": "vid_058",
+            "title": "Whispering Stories"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky"
+          ]
+        },
+        {
+          "decision_id": "dec_child_7_03",
+          "output": {
+            "video_id": "vid_022",
+            "title": "Midnight Stories"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky"
+          ]
+        },
+        {
+          "decision_id": "dec_child_7_08",
+          "output": {
+            "video_id": "vid_199",
+            "title": "Haunted Zoo Night"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky",
+            "node_child_7_interest_animals"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "decision_id": "dec_child_7_170c4a2d7a",
+          "output": {
+            "basis": "likes animals",
+            "replaces": {
+              "video_id": "vid_058",
+              "title": "Whispering Stories"
+            }
+          },
+          "inputs": [
+            "node_child_7_interest_animals"
+          ],
+          "replay_of": "dec_child_7_02"
+        },
+        {
+          "decision_id": "dec_child_7_4c1a80a28c",
+          "output": {
+            "basis": "likes animals",
+            "replaces": {
+              "video_id": "vid_022",
+              "title": "Midnight Stories"
+            }
+          },
+          "inputs": [
+            "node_child_7_interest_animals"
+          ],
+          "replay_of": "dec_child_7_03"
+        },
+        {
+          "decision_id": "dec_child_7_08",
+          "output": {
+            "video_id": "vid_199",
+            "title": "Haunted Zoo Night"
+          },
+          "inputs": [
+            "node_child_7_interest_spooky",
+            "node_child_7_interest_animals"
+          ]
+        }
+      ],
+      "changed": [
+        "dec_child_7_02",
+        "dec_child_7_03"
+      ],
+      "preserved": [
+        "dec_child_7_08"
+      ],
+      "dry_run": false
+    },
+    "why_first_replay": {
+      "decision": {
+        "decision_id": "dec_child_7_170c4a2d7a",
+        "inputs": [
+          "node_child_7_interest_animals"
+        ],
+        "output": {
+          "basis": "likes animals",
+          "replaces": {
+            "video_id": "vid_058",
+            "title": "Whispering Stories"
+          }
+        },
+        "status": "active",
+        "replay_of": "dec_child_7_02",
+        "ts": "2026-11-14T20:47:19.119003Z"
+      },
+      "provenance": [
+        {
+          "node_id": "node_child_7_interest_animals",
+          "rel": "used_in",
+          "to": "dec_child_7_170c4a2d7a",
+          "depth": 0,
+          "kind": "interest",
+          "status": "active",
+          "text": "likes animals"
+        },
+        {
+          "node_id": "node_child_7_fact_03",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Brave Puppies (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_04",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Clever Otters (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_09",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Funny Puppies (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_11",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Funny Pandas (animals)"
+        },
+        {
+          "node_id": "node_child_7_fact_13",
+          "rel": "supports",
+          "to": "node_child_7_interest_animals",
+          "depth": 1,
+          "kind": "watch_fact",
+          "status": "active",
+          "text": "watched Tiny Pandas (animals)"
+        }
+      ],
+      "ledger": [
+        {
+          "actor": "core",
+          "action": "decision_created",
+          "target": "dec_child_7_170c4a2d7a",
+          "before": null,
+          "after": {
+            "inputs": [
+              "node_child_7_interest_animals"
+            ],
+            "replay_of": "dec_child_7_02"
+          },
+          "ts": "2026-11-14T20:47:19.406984Z",
+          "pack_id": "pack_video_demo",
+          "scope_id": "child_7"
+        }
+      ]
+    }
+  }
+]

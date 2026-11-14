@@ -34,6 +34,9 @@ def reseed():
         sys.argv = argv
     db = get_db()
     ensure(db, vector=False)
+    from core.engine import backfill_embeddings
+    pack_id = json.loads((ROOT / "data" / "pack_video.json").read_text())["pack_id"]
+    backfill_embeddings(db, pack_id)  # seed nodes carry no embeddings; no-op without VOYAGE_API_KEY
     return db
 
 
@@ -47,7 +50,7 @@ def run_policy(client, db, sc, pack_id, pol):
         r = client.post("/memory/search", json={"pack_id": pack_id, "scope_id": sid, "query": text, "k": 5}).json()
         ids = [x["node_id"] for x in r["results"]]
         return {"status": db.nodes.find_one({"_id": target})["status"],
-                "rank": ids.index(target) + 1 if target in ids else None}
+                "rank": ids.index(target) + 1 if target in ids else None, "mode": r.get("mode")}
 
     before = probe()
     t0 = now()  # the ledger is append-only across runs; count only this run's entries
@@ -85,10 +88,13 @@ def main():
         cell = lambda p: f"{p['status']}/rank {p['rank'] or '-'}"
         print(f"{r['policy']:<12} {cell(r['before']):<14} " + " ".join(f"{cell(s):<16}" for s in r["sessions"])
               + f" {len(r['evidence_retracted']):<19} {ok[r['policy']]}  (re-derived {r['rederived_events']}x)")
+    modes = sorted({p["mode"] for r in res for p in [r["before"], *r["sessions"]]})
+    print(f"\nsearch mode: {', '.join(m or '?' for m in modes)}")
     out = ROOT / "core" / "fixtures" / "runs"
     out.mkdir(exist_ok=True)
-    (out / "creep_back_seed.json").write_text(json.dumps(res, indent=2, default=str) + "\n")
-    print("\nwrote core/fixtures/runs/creep_back_seed.json")
+    name = f"creep_back_seed{'_vector' if modes == ['vector'] else ''}.json"
+    (out / name).write_text(json.dumps(res, indent=2, default=str) + "\n")
+    print(f"wrote core/fixtures/runs/{name}")
     return 0 if all(ok.values()) else 1
 
 

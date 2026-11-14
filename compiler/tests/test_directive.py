@@ -91,7 +91,7 @@ def test_submit_posts_contract_body(pack, vocab, monkeypatch):
     "resp",
     [
         httpx.Response(200, json={"error": {"code": "not_confirmed", "detail": "x"}}),  # mock style
-        httpx.Response(400, json={"error": {"code": "not_confirmed", "detail": "x"}}),  # contract style
+        httpx.Response(422, json={"error": {"code": "not_confirmed", "detail": "x"}}),  # contract v0.2
     ],
 )
 def test_submit_surfaces_core_errors(pack, vocab, resp):
@@ -100,3 +100,26 @@ def test_submit_surfaces_core_errors(pack, vocab, resp):
     with pytest.raises(DirectiveError) as e:
         submit_directive(d, pack, "h1", vocab, client=_mock_client(lambda r: resp), now=NOW)
     assert e.value.code == "not_confirmed"
+
+
+def test_submit_sends_compiler_key(pack, vocab, monkeypatch):
+    monkeypatch.setenv("COMPILER_SHARED_SECRET", "s3cret")
+    seen = {}
+
+    def handler(req):
+        seen["key"] = req.headers.get("X-Compiler-Key")
+        return httpx.Response(200, json={"directive_id": "dir_1", "status": "active"})
+
+    d = Directive(type="prioritize", target={"kind": "topic", "value": "space"}, expires_at=None, cap=2,
+                  confirmed_by="pin", source_text="more space")
+    submit_directive(d, pack, "child_7", vocab, client=_mock_client(handler), now=NOW)
+    assert seen["key"] == "s3cret"
+
+
+def test_core_forbidden_is_surfaced(pack, vocab):
+    resp = httpx.Response(403, json={"error": {"code": "forbidden", "detail": "compiler key required"}})
+    d = Directive(type="prioritize", target={"kind": "topic", "value": "space"}, expires_at=None, cap=2,
+                  confirmed_by="pin", source_text="more space")
+    with pytest.raises(DirectiveError) as e:
+        submit_directive(d, pack, "child_7", vocab, client=_mock_client(lambda r: resp), now=NOW)
+    assert e.value.code == "forbidden"

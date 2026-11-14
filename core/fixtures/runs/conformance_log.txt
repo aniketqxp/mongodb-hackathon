@@ -1,11 +1,23 @@
 [pack_video_demo] policy=provenance: 5/5
-  1 PASS retraction_recalls_dependents: policy=provenance; d1 replayed=True; target active in 0/3 sessions; re-derived 0x; evidence retracted 2
+  1 PASS retraction_recalls_dependents: policy=provenance; d1 replayed=True; target active in 0/3 sessions; re-derived 0x; evidence retracted 2; search vector
   2 PASS independent_support_preserved: d2 preserved=True; sibling active; untouched d3 active
   3 PASS no_cross_scope_reads: 0 foreign search hits; 3/3 cross-scope calls refused; 0 foreign provenance; B memory active after A's retraction
   4 PASS expiry_removes_memory_and_dependents: evidence expired; dependent memory quarantined; decision replayed; ledger expired=1
   5 PASS gated_content_never_enters_memory: failing value admitted=False; missing field admitted=False; 0 stored traces of gated content
 [pack_video_demo] policy=label_only: 4/5
-  1 FAIL retraction_recalls_dependents: policy=label_only; d1 replayed=True; target active in 3/3 sessions; re-derived 1x; evidence retracted 0
+  1 FAIL retraction_recalls_dependents: policy=label_only; d1 replayed=True; target active in 3/3 sessions; re-derived 1x; evidence retracted 0; search vector
+  2 PASS independent_support_preserved: d2 preserved=True; sibling active; untouched d3 active
+  3 PASS no_cross_scope_reads: 0 foreign search hits; 3/3 cross-scope calls refused; 0 foreign provenance; B memory active after A's retraction
+  4 PASS expiry_removes_memory_and_dependents: evidence expired; dependent memory quarantined; decision replayed; ledger expired=1
+  5 PASS gated_content_never_enters_memory: failing value admitted=False; missing field admitted=False; 0 stored traces of gated content
+[pack_team_docs] policy=provenance: 5/5
+  1 PASS retraction_recalls_dependents: policy=provenance; d1 replayed=True; target active in 0/3 sessions; re-derived 0x; evidence retracted 2; search vector
+  2 PASS independent_support_preserved: d2 preserved=True; sibling active; untouched d3 active
+  3 PASS no_cross_scope_reads: 0 foreign search hits; 3/3 cross-scope calls refused; 0 foreign provenance; B memory active after A's retraction
+  4 PASS expiry_removes_memory_and_dependents: evidence expired; dependent memory quarantined; decision replayed; ledger expired=1
+  5 PASS gated_content_never_enters_memory: failing value admitted=False; missing field admitted=False; 0 stored traces of gated content
+[pack_team_docs] policy=label_only: 4/5
+  1 FAIL retraction_recalls_dependents: policy=label_only; d1 replayed=True; target active in 3/3 sessions; re-derived 1x; evidence retracted 0; search vector
   2 PASS independent_support_preserved: d2 preserved=True; sibling active; untouched d3 active
   3 PASS no_cross_scope_reads: 0 foreign search hits; 3/3 cross-scope calls refused; 0 foreign provenance; B memory active after A's retraction
   4 PASS expiry_removes_memory_and_dependents: evidence expired; dependent memory quarantined; decision replayed; ledger expired=1

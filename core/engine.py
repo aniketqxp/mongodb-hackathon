@@ -13,6 +13,8 @@ Seed graphs that already carry evidence -> derived edges need nothing else.
 RETRACTION_POLICY (env, default provenance) selects the planner policy; refresh() is identical under both, so the
 naive policy's creep-back falls out of recompute and is never scripted.
 """
+import hashlib
+import json
 import os
 import re
 import uuid
@@ -388,25 +390,81 @@ def get_ledger(db, pack_id=None, scope_id=None, limit=50):
 
 
 _VOYAGE_OK = None
+_CACHE = None
+CACHE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache", "embeddings.json")
 
 
-def embed(texts):
-    """Voyage embedding when VOYAGE_API_KEY is set, else None (search falls back to lexical)."""
+def _cache():
+    global _CACHE
+    if _CACHE is None:
+        try:
+            with open(CACHE_PATH, encoding="utf-8") as f:
+                _CACHE = json.load(f)
+        except (OSError, ValueError):
+            _CACHE = {}
+    return _CACHE
+
+
+def _save_cache():
+    os.makedirs(os.path.dirname(CACHE_PATH), exist_ok=True)
+    with open(CACHE_PATH, "w", encoding="utf-8") as f:
+        json.dump(_CACHE, f)
+
+
+def _ckey(model, input_type, text):
+    return hashlib.sha256(f"{model}|{input_type}|{text}".encode()).hexdigest()
+
+
+def embed_many(texts, input_type="document"):
+    """Voyage embeddings (cached on disk by model, input_type and text). None when no key or Voyage fails, and
+    search then falls back to lexical."""
     global _VOYAGE_OK
     key = os.getenv("VOYAGE_API_KEY")
     if not key or _VOYAGE_OK is False:
         return None
+    model = os.getenv("VOYAGE_MODEL", "voyage-4-lite")
+    cache = _cache()
+    keys = [_ckey(model, input_type, t) for t in texts]
+    todo = sorted({(k, t) for k, t in zip(keys, texts) if k not in cache})
+    base = (os.getenv("VOYAGE_API_BASE") or os.getenv("VOYAGE_BASE_URL") or "https://ai.mongodb.com/v1").rstrip("/")
+    url = base if base.endswith("/embeddings") else base + "/embeddings"
     try:
         import requests
-        r = requests.post(os.getenv("VOYAGE_BASE_URL", "https://ai.mongodb.com/v1/embeddings"),
-                          headers={"Authorization": f"Bearer {key}"},
-                          json={"input": texts, "model": os.getenv("VOYAGE_MODEL", "voyage-4-lite")}, timeout=30)
-        r.raise_for_status()
+        for i in range(0, len(todo), 64):
+            batch = todo[i:i + 64]
+            r = requests.post(url, headers={"Authorization": f"Bearer {key}"}, timeout=60,
+                              json={"input": [t for _, t in batch], "model": model, "input_type": input_type})
+            r.raise_for_status()
+            for (k, _), d in zip(batch, sorted(r.json()["data"], key=lambda d: d["index"])):
+                cache[k] = d["embedding"]
+        if todo:
+            _save_cache()
         _VOYAGE_OK = True
-        return r.json()["data"][0]["embedding"]
-    except Exception:
+        return [cache[k] for k in keys]
+    except Exception as e:
         _VOYAGE_OK = False
+        print("embedding unavailable, lexical fallback:", type(e).__name__, getattr(getattr(e, "response", None),
+                                                                                    "status_code", ""))
         return None
+
+
+def embed(texts, input_type="document"):
+    v = embed_many(texts[:1], input_type)
+    return v[0] if v else None
+
+
+def backfill_embeddings(db, pack_id, scope_id=None):
+    """Embed every node of a pack (optionally one scope) that has no embedding. Returns the count written."""
+    q = {"pack_id": pack_id, "$or": [{"embedding": None}, {"embedding": {"$exists": False}}]}
+    if scope_id:
+        q["scope_id"] = scope_id
+    docs = list(db.nodes.find(q, {"text": 1}))
+    vecs = embed_many([d["text"] for d in docs]) if docs else []
+    if not vecs:
+        return 0
+    for d, v in zip(docs, vecs):
+        db.nodes.update_one({"_id": d["_id"]}, {"$set": {"embedding": v}})
+    return len(docs)
 
 
 def _tokens(s):
@@ -418,7 +476,7 @@ def search(db, body):
     pack_id, scope_id, k = body["pack_id"], body["scope_id"], int(body.get("k") or 5)
     refresh(db, pack_id, scope_id)
     q = {"pack_id": pack_id, "scope_id": scope_id, "status": "active"}
-    vec = embed([body["query"]])
+    vec = embed([body["query"]], "query")
     if vec is not None:
         try:
             res = list(db.nodes.aggregate([

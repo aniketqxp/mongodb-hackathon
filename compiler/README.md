@@ -21,7 +21,7 @@ submit_directive(d, pack, scope_id, vocab)                         # CORE_API_UR
 ```
 
 ## Service for the UI (port 8002)
-`uvicorn compiler.app:app --port 8002`
+`uvicorn compiler.app:app --port 8002` (env: `DIRECTIVE_PIN`, `BUILDER_PIN`, `COMPILER_SHARED_SECRET` sent to core as `X-Compiler-Key`, `CORE_API_URL`)
 - `POST /directives/compile` `{pack_id, scope_id, text}` → `{directive, summary}`
 - `POST /directives/confirm` `{pack_id, scope_id, directive, pin}` → core `/directives` response
 
@@ -36,3 +36,31 @@ Errors use the contract shape `{"error": {"code", "detail"}}`.
 ## Tests
 `pytest` from the repo root runs `compiler/tests` plus `eval/tests`. The 25-prompt dataset is `eval/directive_prompts.json`: 18 expected drafts across the 3 types and 7 adversarial prompts, each with the hostile draft that code must reject. The injection tests use a stub that acts like a fully compromised LLM, so they run offline.
 `test_live_llm.py` runs only when `GROQ_API_KEY` or `OPENROUTER_API_KEY` is set.
+
+---
+
+# D2: pack compiler and conformance suite
+
+## Pack compiler (`compiler/pack.py`)
+A builder sentence becomes a data-only pack (CONTRACT §2). The LLM fills `PackDraft`. Code then:
+- builds `pack_id` (`pack_<slug>`), slugifies names and dedupes `directive_vocab`
+- validates the schema (extra or missing fields are rejected) and referential rules: edges name declared types, at least one edge reaches `decision`, gate ops fit their values, exactly one of `value` / `value_from_scope`, no reserved fields, the gate is satisfiable, and decay values are sane
+- **fallback:** an exact cached sentence is served with no LLM call. If the LLM fails, its output is invalid, or the budget (`PACK_LLM_MAX_CALLS`, default 20 per process) is spent, the closest cached validated pack is served, preferring packs that passed 5/5. The result always says `source: llm | cache | fallback` plus a `reason`
+- the cache is `compiler/pack_cache/` (`PACK_CACHE_DIR`), plus `data/pack_*.json`. It is seeded with the hand-written `pack_team_notes` (a second domain for the floor tier). Only validated packs are written; corrupt files are skipped
+
+## Conformance suite (`compiler/conformance.py`)
+Five domain-neutral checks over the contract HTTP routes only. It builds its own items from the pack's gate (`compiler/gate.py`) in fresh scopes `conf_<run>_<x>`.
+```
+python -m compiler.conformance --pack data/pack_video.json --core http://localhost:8001
+```
+Returns the contract shape `{passed, total: 5, checks: [{id, name, passed, detail}]}`. For core (A3): `POST /packs/{id}/conformance` can call `run_conformance(pack, Core(<own base url>))`.
+
+`compiler/tests/fake_core.py` is a correct in-memory reference core. Its `broken` flags (`lazy_retract`, `greedy_retract`, `leaky_search`, `no_expiry`, `no_gate`) each fail exactly their matching check, for both packs. Against the canned mock the suite reports 1/5, as it should.
+
+## Stage demo: pack from a sentence
+```
+set -a; source .env; set +a
+python -m compiler.demo_pack "A team memory assistant that forgets notes after 30 days"
+python -m compiler.demo_pack --cached "..."    # no LLM call, closest cached pack (safe fallback on stage)
+```
+Steps: compile (and say whether the pack came from the LLM or the cache), `POST /packs`, `/packs/{id}/conformance` (prints all 5 checks), then `/activate`. Core refuses activation below 5/5. Re-running an already active pack reports it as active rather than failing. Core comes from `CORE_API_URL` (default `:8001`).
