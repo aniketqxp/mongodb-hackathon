@@ -1,0 +1,15 @@
+[package]
+name = "recall-core"
+version = "0.1.0"
+edition = "2021"
+description = "Pure retraction planner: {graph, fault} JSON on stdin -> plan JSON on stdout (CONTRACT section 6)."
+
+[dependencies]
+serde_json = { version = "1", features = ["preserve_order"] }
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "recall-core"
+path = "src/main.rs"
