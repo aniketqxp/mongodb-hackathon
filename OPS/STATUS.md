@@ -9,7 +9,7 @@ G3 | Greatness | todo | go/no-go 15:00 |
 A1 | Aniket | todo | | 
 A2 | Aniket | todo | | 
 A3 | Aniket | todo | target ~15:00 | 
-D1 | David | todo | | 
+D1 | David | done | compiler/ directive compiler (3 types), PIN gate, 51 offline tests incl. injection; UI service :8002 (routes pending contract, see BLOCKERS); live LLM untested (no key) | 14:34
 D2 | David | todo | | 
 D3 | David | todo | | 
 J1 | Jasmine | todo | | 
