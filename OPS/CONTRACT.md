@@ -1,6 +1,7 @@
-# CONTRACT v0 (frozen at ~2:00 PM; changes via PR from Greatness)
+# CONTRACT v0.2 (changes via PR from Greatness)
 
-Version: 0.1
+Version: 0.2
+Changes since 0.1: scope profile, target vocabulary, GET /directives, compiler routes (port 8002), directive trust header, 422 for not_confirmed.
 All bodies are JSON. IDs are strings. Timestamps are ISO 8601 UTC. Every request carries `pack_id` and `scope_id`.
 The core has no domain words: domain meaning lives only in pack data.
 
@@ -35,6 +36,10 @@ Embeddings: Voyage `voyage-4-lite`. Every query filters on `pack_id` and `scope_
 ```
 A pack activates only when conformance returns 5/5 (see section 5).
 
+**Scope profile.** A scope's attributes live in an event: `{type:"scope_profile", payload:{...attrs}}` (latest wins). A gate rule's `value_from_scope` names a key in that payload (video pack: `max_maturity`). Gate and scope fields can never be targeted by a directive: only the scope profile changes them.
+
+**Target vocabulary** (what a directive `target.kind` may be) is pack data in `data/taxonomy.json` plus catalog tags, not a pack slot. Video pack kinds: `topic` (matches `item.topic == value`) and `tag` (matches `value in item.tags`). `retract` targets a node id in the same scope.
+
 ## 3. Directive schema (three primitives)
 
 ```json
@@ -62,13 +67,22 @@ A pack activates only when conformance returns 5/5 (see section 5).
 | `POST /memory/search` | `{pack_id, scope_id, query, k}` | `{results:[{node_id,text,score,kind}]}` |
 | `POST /decisions` | `{pack_id, scope_id, inputs:[node_id], output}` | `{decision_id}` (writes edges) |
 | `POST /directives` | `{pack_id, scope_id, directive}` | `{directive_id, status}` or error `not_confirmed` |
+| `GET /directives` | query: `pack_id, scope_id, active_only` (default true) | `{directives:[{directive_id, ...directive, status}]}` |
 | `POST /retract` | `{pack_id, scope_id, target_id, reason}` | `{plan, replayed:[decision_id]}` |
 | `GET /why/{decision_id}` | query: `pack_id, scope_id` | `{decision, provenance:[...], ledger:[...]}` |
 | `GET /diff` | query: `pack_id, scope_id, retract` | `{before:[...], after:[...], changed:[...], preserved:[...]}` |
 | `GET /ledger` | query: `pack_id, scope_id, limit` | `{entries:[...]}` |
 
 A gated event returns HTTP 200 with `admitted:false`. Nothing is written to `nodes` or `edges`.
-Errors: HTTP 4xx/5xx with `{"error": {"code": "string", "detail": "string"}}`. Stable codes: `bad_request`, `not_found`, `conformance_failed`, `not_confirmed`, `scope_violation`, `internal`.
+Errors: HTTP 4xx/5xx with `{"error": {"code": "string", "detail": "string"}}`. Stable codes: `bad_request`, `not_found`, `conformance_failed`, `not_confirmed` (HTTP 422), `forbidden` (HTTP 403), `scope_violation`, `internal`.
+
+### Compiler service (David, port 8002)
+| Route | Body in | Body out |
+| --- | --- | --- |
+| `POST /directives/compile` | `{pack_id, scope_id, text}` | `{directive, summary}` (unconfirmed, `confirmed_by:null`) |
+| `POST /directives/confirm` | `{pack_id, scope_id, directive, pin}` | the core `POST /directives` response |
+
+The compiler checks the PIN server-side (`DIRECTIVE_PIN` / `BUILDER_PIN`), sets `confirmed_by`, then calls the core. The UI and harness server (`ui/`, `harness/`) are Jasmine's and documented in `ui/README.md` and `harness/README.md`; they are not core routes.
 
 ## 5. Conformance checks (domain-neutral)
 
@@ -94,6 +108,10 @@ Rust CLI: reads `{graph, fault}` JSON on stdin, writes the plan JSON on stdout. 
 
 `shared/llm.py::get_llm()` returns a LangChain chat model from `LLM_PROVIDER` (`groq`|`openrouter`), `LLM_MODEL` and the matching key. Compilers must use structured output and validate against sections 2 and 3.
 
-## 8. Mock API
+## 8. Directive trust (security)
 
-`mock/app.py` serves canned responses for every route above on port 8001. Real API (A3) must match these shapes. Run: `uvicorn mock.app:app --port 8001`.
+The core must not trust `confirmed_by` from arbitrary callers, or the PIN can be bypassed by calling the core directly. `POST /directives` requires header `X-Compiler-Key` equal to env `COMPILER_SHARED_SECRET`; otherwise HTTP 403 `forbidden`. Only the compiler service holds the secret. (Owner: Aniket, A3.)
+
+## 9. Mock API
+
+`mock/app.py` serves canned responses for every core route above on port 8001 (the compiler routes are served by `compiler/app.py` on 8002). It enforces `X-Compiler-Key` only when `COMPILER_SHARED_SECRET` is set. Real API (A3) must match these shapes. Run: `uvicorn mock.app:app --port 8001`.

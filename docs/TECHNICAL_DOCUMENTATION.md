@@ -170,12 +170,17 @@ The harness, compilers and UI talk to the core only through these routes. See `O
 | `POST /decisions` | Record a decision with its input node ids; writes edges | Harness (J2) |
 | `POST /directives` | Create a confirmed directive (suppress, prioritize, retract) | Directive compiler (D1) |
 | `POST /retract` | Retract a node or directive; returns the plan and the replay result | UI (J1) |
+| `GET /directives` | List a scope's directives (active by default) | Harness (J2) |
 | `GET /why/{decision_id}` | Provenance and ledger entries for a decision | UI (J1) |
 | `GET /diff?retract={id}` | With/without diff of slates after a retraction | UI (J1), eval (D3) |
 | `GET /ledger` | Audit entries for a scope, newest first | UI (J1) |
 
+**Compiler service (David, port 8002):** `POST /directives/compile` `{pack_id, scope_id, text}` → `{directive, summary}`; `POST /directives/confirm` `{pack_id, scope_id, directive, pin}` → the core's `/directives` response. The PIN is checked server-side.
+
 **Conventions**
 
+- `not_confirmed` is HTTP 422; the core only accepts `POST /directives` with the compiler's shared secret (`X-Compiler-Key`), so the PIN cannot be bypassed.
+- Scope attributes (for example `max_maturity`) live in a `scope_profile` event; gate and scope fields cannot be targeted by directives.
 - Errors return `{"error": {"code": "...", "detail": "..."}}` with a stable `code`.
 - IDs are strings. Timestamps are ISO 8601 UTC.
 - A gated event returns `200` with `{"admitted": false, "reason": "..."}`. Nothing is written to `nodes` or `edges`.
@@ -292,6 +297,8 @@ Arrow means "waits on". G1 gates integration for everyone. Drop G3 first if time
 | J2 | Jasmine | Generic gate evaluator, restricted-content quarantine, slate generator | G2 catalog |
 | J3 | Jasmine | Demo script, 1-minute video, README, submission form, fallbacks | Everything, late |
 
+**Progress (14 Nov, 15:05):** G1, G2 and D1 are merged. J1 and J2 are merged and in progress. A1, A2 and A3 (Aniket) and D2, D3, G3, J3 have not landed on `main` yet. Contract is at v0.2. See `OPS/STATUS.md` for the live view.
+
 **Gates:** about 2:00 PM contract and pack schema frozen; 3:00 PM recall works end to end; 3:45 PM compiler, UI and PIN working; 4:15 PM feature freeze; submit by 4:45 PM, ahead of the 5:00 PM deadline.
 
 ## 12. Claude Code kit
@@ -356,6 +363,8 @@ The track asks us to prove memory changed behavior. D3 (David) produces that pro
 **Open items**
 
 - [x] `.gitignore`, scaffold, contract v0.1 and mock API merged (G1).
+- [ ] Aniket: require `X-Compiler-Key` on core `POST /directives` and read `max_maturity` from the `scope_profile` event (A3).
+- [ ] Decide `history` vs `ledger` for the audit collection (the Atlas sandbox currently has `history`).
 - [ ] Buy the $10 OpenRouter credit with a spend cap (not blocking; before 3:00 PM).
 - [ ] A teammate runs one `with_structured_output` call on Groq `gpt-oss-120b` to confirm strict JSON works.
 - [ ] Check the participant guide's partner-resources section for extra credits.
