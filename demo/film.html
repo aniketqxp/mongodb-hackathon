@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forgotten Stays Forgotten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f7fb; --ink: #1d1f24; --muted: #6b7180; --line: #e3e6ee; --card: #ffffff;
+  --blue: #1a73e8; --red: #e5484d; --green: #1e9e5a; --amber: #f2a900; --violet: #7b61ff;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+body { font-family: "Outfit", system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+#stage { position: absolute; left: 50%; top: 50%; width: 1280px; height: 720px; transform-origin: 0 0; overflow: hidden;
+  background: radial-gradient(900px 600px at 78% 40%, #eef1ff 0%, transparent 60%),
+              radial-gradient(700px 500px at 10% 90%, #f1f8f4 0%, transparent 60%), var(--bg); }
+
+/* captions */
+.cap { position: absolute; left: 0; right: 0; top: 46px; text-align: center; font-size: 30px; font-weight: 400; letter-spacing: -.01em;
+  opacity: 0; transform: translateY(10px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.cap.on { opacity: 1; transform: none; }
+.cap em { font-style: normal; color: var(--muted); }
+
+/* title cards */
+.title { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; opacity: 0; transition: opacity 1s var(--ease); pointer-events: none; }
+.title.on { opacity: 1; }
+.title h1 { font-size: 64px; font-weight: 500; letter-spacing: -.03em; margin: 0; line-height: 1.05; }
+.title p { font-size: 22px; color: var(--muted); margin: 18px 0 0; font-weight: 300; }
+.title .ghost { font-size: 76px; display: block; margin-bottom: 18px; transition: opacity 1.2s, filter 1.2s, transform 1.2s; }
+.title .ghost.fade { opacity: 0; filter: blur(10px); transform: scale(.8); }
+
+/* scene */
+#scene { position: absolute; inset: 0; opacity: 0; transition: opacity .9s var(--ease); }
+#scene.on { opacity: 1; }
+svg#wires { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; }
+svg#wires path { fill: none; stroke-width: 2.2; stroke-linecap: round; transition: stroke .5s, opacity .6s; }
+
+.feed { position: absolute; left: 110px; top: 118px; width: 520px; height: 520px; background: var(--card); border-radius: 28px;
+  box-shadow: 0 30px 80px -30px rgba(30, 40, 90, .25), 0 0 0 1px var(--line); overflow: hidden; }
+.feed-head { position: absolute; left: 26px; top: 20px; right: 26px; display: flex; justify-content: space-between; align-items: center; }
+.feed-head b { font-weight: 600; font-size: 18px; }
+.kid { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.kid i { font-style: normal; width: 30px; height: 30px; border-radius: 50%; background: #ffe7d6; display: grid; place-items: center; font-size: 16px; }
+.rows { position: absolute; left: 18px; right: 18px; top: 66px; bottom: 82px; }
+.row { position: absolute; left: 0; right: 0; height: 68px; display: flex; align-items: center; gap: 16px; padding: 0 8px;
+  border-radius: 16px; transition: transform .9s var(--ease), opacity .7s var(--ease), background .5s; }
+.row .th { width: 100px; height: 56px; border-radius: 12px; display: grid; place-items: center; font-size: 28px; flex: 0 0 auto;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
+.row .tt { font-size: 17px; font-weight: 500; }
+.row .tm { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.row.lit { background: #f2f5ff; }
+.row.doomed { background: #fff1f1; }
+.row.doomed .tt { color: var(--red); }
+.t-space { background: linear-gradient(135deg, #5b6cff, #1b1f6b); }
+.t-spooky { background: linear-gradient(135deg, #7a7a92, #23232e); }
+.t-animals { background: linear-gradient(135deg, #3cc6b4, #1d6f8c); }
+.t-art { background: linear-gradient(135deg, #ffb35c, #e0613a); }
+
+.prompt { position: absolute; left: 22px; right: 22px; bottom: 18px; height: 52px; border-radius: 26px; background: #f3f4f8;
+  display: flex; align-items: center; padding: 0 8px 0 22px; font-size: 17px; color: var(--muted); transition: box-shadow .4s, background .4s; }
+.prompt.focus { background: #fff; box-shadow: 0 0 0 2px var(--blue), 0 10px 30px -10px rgba(26,115,232,.4); color: var(--ink); }
+.prompt span { flex: 1; white-space: nowrap; }
+.prompt .caret { display: inline-block; width: 2px; height: 20px; background: var(--blue); vertical-align: -4px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.prompt button { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; font-size: 18px; transition: transform .2s, background .3s; }
+.prompt button.press { transform: scale(.86); background: var(--blue); }
+
+/* memory */
+.mem-title { position: absolute; left: 860px; top: 104px; width: 300px; text-align: center; font-size: 15px; color: var(--muted); letter-spacing: .02em; }
+.orb { position: absolute; width: 300px; left: 860px; display: flex; align-items: center; gap: 18px; transition: opacity .8s, transform .8s var(--ease); }
+.orb .ball { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; font-size: 32px; background: #fff; flex: 0 0 auto;
+  box-shadow: 0 14px 30px -12px var(--glow), 0 0 0 1px var(--line); position: relative; transition: box-shadow .6s, background .6s, filter .8s, opacity .8s; }
+.orb .ball::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--glow); opacity: .0; transition: opacity .5s; }
+.orb.lit .ball::after { opacity: .55; }
+.orb .lbl { font-size: 19px; font-weight: 500; }
+.orb .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.orb .bar { width: 120px; height: 5px; border-radius: 3px; background: var(--line); margin-top: 8px; overflow: hidden; }
+.orb .bar i { display: block; height: 100%; width: var(--w); background: var(--glow); border-radius: 3px; transition: width .8s var(--ease); }
+.orb.hit .ball { background: #fff1f1; box-shadow: 0 0 0 3px var(--red), 0 14px 40px -8px rgba(229,72,77,.6); }
+.orb.gone .ball { background: transparent; box-shadow: 0 0 0 2px var(--line); filter: grayscale(1); opacity: .35; }
+.orb.gone .ball { outline: 2px dashed #c8ccd6; outline-offset: 4px; }
+.orb.gone .lbl { color: #aab0bd; text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--red); }
+.orb.gone .bar i { width: 0 !important; }
+.orb .stamp { font-size: 12px; font-weight: 600; color: var(--red); background: #fff1f1; border-radius: 8px; padding: 3px 8px; margin-left: 4px;
+  opacity: 0; transform: scale(.8); transition: opacity .5s, transform .5s var(--ease); display: inline-block; }
+.orb.gone .stamp { opacity: 1; transform: none; }
+
+/* session ticker */
+.sessions { position: absolute; left: 110px; width: 520px; top: 652px; display: flex; gap: 10px; justify-content: center; }
+.sess { font-size: 14px; padding: 7px 14px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 1px var(--line); color: var(--muted);
+  opacity: 0; transform: translateY(8px); transition: opacity .5s, transform .5s var(--ease); display: flex; gap: 8px; align-items: center; }
+.sess.on { opacity: 1; transform: none; }
+.sess b { color: var(--green); font-weight: 600; }
+
+.pulse { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 18px var(--blue); opacity: 0; pointer-events: none; }
+
+.replay { position: fixed; right: 14px; bottom: 12px; font: 13px "Outfit", sans-serif; color: #9aa0ad; background: none; border: 0; cursor: pointer; opacity: 0; transition: opacity .4s; }
+body:hover .replay { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="title" id="intro">
+    <div><span class="ghost" id="ghost">👻</span>
+      <h1>What should a feed forget?</h1>
+      <p>Memory you can govern</p></div>
+  </div>
+
+  <div id="scene">
+    <svg id="wires"></svg>
+    <div class="feed">
+      <div class="feed-head"><b>For Maya</b><span class="kid"><i>🦊</i>age 7</span></div>
+      <div class="rows" id="rows"></div>
+      <div class="prompt" id="prompt"><span id="ptext">Tell the feed what to change…</span><button aria-hidden="true">↑</button></div>
+    </div>
+    <div class="mem-title">What the feed remembers</div>
+    <div id="orbs"></div>
+    <div class="sessions" id="sessions"></div>
+  </div>
+
+  <div class="cap" id="cap"></div>
+
+  <div class="title" id="outro">
+    <div><h1>A forgotten memory<br>stays forgotten.</h1>
+      <p>Governed memory on MongoDB Atlas</p></div>
+  </div>
+</div>
+<button class="replay" id="replay">Replay</button>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const stage = $("#stage");
+function fit() {
+  const s = Math.min(innerWidth / 1280, innerHeight / 720);
+  stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  stage.style.transformOrigin = "center"; stage.style.left = "50%"; stage.style.top = "50%";
+}
+addEventListener("resize", fit); fit();
+
+const MEM = {
+  space:   { icon: "🚀", label: "Space",   sub: "from 4 videos watched", glow: "#5b6cff", w: 82, y: 170 },
+  spooky:  { icon: "👻", label: "Spooky",  sub: "from 4 videos watched", glow: "#8a8aa3", w: 76, y: 290 },
+  animals: { icon: "🐾", label: "Animals", sub: "from 5 videos watched", glow: "#2bb3a3", w: 88, y: 410 },
+  art:     { icon: "🎨", label: "Crafts",  sub: "from 3 videos watched", glow: "#ff8a4c", w: 64, y: 530 },
+};
+const V = {
+  planets: { t: "Amazing Planets", m: "space", e: "🪐", c: "space" },
+  haunted: { t: "Haunted Stories", m: "spooky", e: "👻", c: "spooky" },
+  otters:  { t: "Clever Otters", m: "animals", e: "🦦", c: "animals" },
+  mazes:   { t: "Whispering Mazes", m: "spooky", e: "🕯️", c: "spooky" },
+  paper:   { t: "Simple Paper Crafts", m: "art", e: "✂️", c: "art" },
+  comets:  { t: "Bright Comets", m: "space", e: "☄️", c: "space" },
+  pandas:  { t: "Tiny Pandas", m: "animals", e: "🐼", c: "animals" },
+};
+const META = { space: "Space", spooky: "Spooky", animals: "Animals", art: "Arts & crafts" };
+const ROW_H = 74;
+let rows = [];   // [{id, el}]
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function caption(html) {
+  const c = $("#cap");
+  c.classList.remove("on");
+  return wait(html ? 380 : 0).then(() => { if (html) { c.innerHTML = html; c.classList.add("on"); } });
+}
+
+function buildOrbs() {
+  $("#orbs").innerHTML = Object.entries(MEM).map(([k, m]) => `
+    <div class="orb" id="orb-${k}" style="top:${m.y - 37}px; --glow:${m.glow}; --w:${m.w}%; opacity:0; transform: translateX(20px)">
+      <div class="ball">${m.icon}</div>
+      <div><div class="lbl">${m.label}<span class="stamp">Forgotten</span></div><div class="sub">${m.sub}</div><div class="bar"><i></i></div></div>
+    </div>`).join("");
+}
+
+function addRow(id, idx, { hidden = true } = {}) {
+  const v = V[id];
+  const el = document.createElement("div");
+  el.className = "row";
+  el.innerHTML = `<div class="th t-${v.c}">${v.e}</div><div><div class="tt">${v.t}</div><div class="tm">${META[v.m]} · because of ${MEM[v.m].icon}</div></div>`;
+  el.style.transform = `translateY(${idx * ROW_H + (hidden ? 24 : 0)}px)`;
+  el.style.opacity = hidden ? 0 : 1;
+  $("#rows").appendChild(el);
+  const r = { id, el, idx };
+  rows.push(r);
+  return r;
+}
+function place() { rows.forEach((r, i) => { r.idx = i; r.el.style.transform = `translateY(${i * ROW_H}px)`; r.el.style.opacity = 1; }); }
+
+// wires: one curve from every feed row to the memory that put it there, redrawn each frame
+const wires = $("#wires");
+function stagePt(el, side) {
+  const s = stage.getBoundingClientRect(), b = el.getBoundingClientRect(), k = s.width / 1280;
+  return { x: ((side === "r" ? b.right : b.left) - s.left) / k, y: (b.top + b.height / 2 - s.top) / k };
+}
+const wireState = {}; // id -> {color, opacity}
+function draw() {
+  wires.innerHTML = rows.map((r) => {
+    const ball = document.querySelector(`#orb-${V[r.id].m} .ball`);
+    if (!ball || r.el.style.opacity === "0") return "";
+    const st = wireState[r.id] || {};
+    if (st.opacity === 0) return "";
+    const a = stagePt(r.el, "r"), b = stagePt(ball, "l");
+    const mx = (a.x + b.x) / 2;
+    const color = st.color || MEM[V[r.id].m].glow;
+    const op = Math.min(+r.el.style.opacity || 0, st.opacity ?? .55) * (+getComputedStyle(ball.closest(".orb")).opacity);
+    return `<path d="M${a.x - 14},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x - 6},${b.y}" stroke="${color}" opacity="${op}" stroke-dasharray="${st.dash || "none"}"/>`;
+  }).join("");
+  requestAnimationFrame(draw);
+}
+
+async function type(text, ms = 55) {
+  const p = $("#ptext"); $("#prompt").classList.add("focus");
+  for (let i = 0; i <= text.length; i++) { p.innerHTML = text.slice(0, i) + `<span class="caret"></span>`; await wait(ms); }
+}
+
+async function run() {
+  rows = []; $("#rows").innerHTML = ""; Object.keys(wireState).forEach((k) => delete wireState[k]);
+  $("#sessions").innerHTML = ""; $("#ptext").textContent = "Tell the feed what to change…"; $("#prompt").classList.remove("focus");
+  ["#intro", "#outro", "#scene"].forEach((s) => $(s).classList.remove("on")); $("#ghost").classList.remove("fade");
+  buildOrbs(); await caption("");
+
+  // 0–6s  title
+  await wait(400); $("#intro").classList.add("on");
+  await wait(3200); $("#ghost").classList.add("fade");
+  await wait(1600); $("#intro").classList.remove("on");
+  await wait(700);
+
+  // 6–18s  the feed is built from memory
+  $("#scene").classList.add("on");
+  await caption("Every video in Maya's feed is there <em>because of a memory.</em>");
+  for (const k of Object.keys(MEM)) { const o = $(`#orb-${k}`); o.style.opacity = 1; o.style.transform = "none"; await wait(260); }
+  await wait(500);
+  const start = ["planets", "haunted", "otters", "mazes", "paper"];
+  for (let i = 0; i < start.length; i++) { const r = addRow(start[i], i); await wait(40); r.el.style.opacity = 1; r.el.style.transform = `translateY(${i * ROW_H}px)`; await wait(420); }
+  await wait(1600);
+  // why this?
+  const w = rows.find((r) => r.id === "planets");
+  w.el.classList.add("lit"); $("#orb-space").classList.add("lit"); wireState.planets = { opacity: 1, color: "#1a73e8" };
+  await caption("Ask why, and the answer is the memory itself.");
+  await wait(2600);
+  w.el.classList.remove("lit"); $("#orb-space").classList.remove("lit"); delete wireState.planets;
+
+  // 18–28s  the parent says one sentence
+  await caption("Her parent says one sentence.");
+  await wait(600);
+  await type("No more spooky stuff, she gets nightmares");
+  await wait(500);
+  $("#prompt button").classList.add("press"); await wait(220); $("#prompt button").classList.remove("press");
+  await wait(300);
+
+  // 28–40s  retract the memory and everything built on it
+  $("#orb-spooky").classList.add("hit");
+  rows.filter((r) => V[r.id].m === "spooky").forEach((r) => { r.el.classList.add("doomed"); wireState[r.id] = { opacity: 1, color: "#e5484d" }; });
+  await caption("The memory is retracted, <em>and everything that depended on it.</em>");
+  await wait(2000);
+  rows.filter((r) => V[r.id].m === "spooky").forEach((r) => { wireState[r.id] = { opacity: 1, color: "#e5484d", dash: "4 8" }; });
+  await wait(700);
+  $("#orb-spooky").classList.remove("hit"); $("#orb-spooky").classList.add("gone");
+  const doomed = rows.filter((r) => V[r.id].m === "spooky");
+  doomed.forEach((r) => { r.el.style.opacity = 0; r.el.style.transform += " translateX(-40px)"; wireState[r.id] = { opacity: 0 }; });
+  await wait(800);
+  doomed.forEach((r) => r.el.remove());
+  rows = rows.filter((r) => !doomed.includes(r));
+  $("#ptext").textContent = "Tell the feed what to change…"; $("#prompt").classList.remove("focus");
+  place();
+  await wait(700);
+  await caption("The feed rebuilds from what's left.");
+  for (const id of ["comets", "pandas"]) { const r = addRow(id, rows.length); await wait(40); place(); await wait(520); }
+  await wait(1800);
+
+  // 40–52s  it stays forgotten
+  await caption("Next session. And the next. <em>It doesn't creep back.</em>");
+  const box = $("#sessions");
+  for (let s = 2; s <= 4; s++) {
+    rows.forEach((r) => { r.el.style.opacity = .25; });
+    await wait(420);
+    place();
+    const chip = document.createElement("div");
+    chip.className = "sess"; chip.innerHTML = `Session ${s} <span>👻</span><b>0</b>`;
+    box.appendChild(chip); await wait(30); chip.classList.add("on");
+    await wait(1500);
+  }
+  await wait(1200);
+
+  // 52–60s  outro
+  await caption("");
+  $("#scene").classList.remove("on");
+  await wait(900);
+  $("#outro").classList.add("on");
+}
+
+requestAnimationFrame(draw);
+run();
+$("#replay").addEventListener("click", run);
+addEventListener("keydown", (e) => { if (e.key === "r" || e.key === " ") run(); });
+</script>
+</body>
+</html>
