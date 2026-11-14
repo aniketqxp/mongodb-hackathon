@@ -1,8 +1,9 @@
-# CONTRACT v0.2 (changes via PR from Greatness)
+# CONTRACT v0.3 (changes via PR from Greatness)
 
-Version: 0.2.1
+Version: 0.3
 Changes in 0.2.1: the audit collection is named `history` (matches the Atlas sandbox); the API keeps `GET /ledger` and the `ledger` field in `/why` responses.
 Changes since 0.1: scope profile, target vocabulary, GET /directives, compiler routes (port 8002), directive trust header, 422 for not_confirmed.
+Changes since 0.2 (Aniket, all additive except expiry): node status `retracted`, plan action `retract`, expiry is a status sweep instead of a TTL delete, core-written provenance edges, `RETRACTION_POLICY`, `$jsonSchema` validators, check 1 must also stay retracted.
 All bodies are JSON. IDs are strings. Timestamps are ISO 8601 UTC. Every request carries `pack_id` and `scope_id`.
 The core has no domain words: domain meaning lives only in pack data.
 
@@ -11,16 +12,22 @@ The core has no domain words: domain meaning lives only in pack data.
 | Collection | Key fields | Indexes |
 | --- | --- | --- |
 | `events` | `pack_id`, `scope_id`, `type`, `payload`, `ts`, `source` | `(pack_id, scope_id, ts)` |
-| `nodes` | `pack_id`, `scope_id`, `kind`, `text`, `embedding`, `status`, `expires_at`, `support[]` | Vector Search on `embedding` (filter: `pack_id`, `scope_id`); TTL on `expires_at` |
+| `nodes` | `pack_id`, `scope_id`, `kind`, `text`, `embedding`, `status`, `expires_at`, `support[]` | Vector Search on `embedding` (filter: `pack_id`, `scope_id`); index on `expires_at` |
 | `edges` | `pack_id`, `scope_id`, `from`, `to`, `rel` | `from`, `to` |
 | `decisions` | `pack_id`, `scope_id`, `inputs[]`, `output`, `status`, `replay_of`, `ts` | `(scope_id, ts)` |
-| `directives` | `pack_id`, `scope_id`, `type`, `target`, `expires_at`, `cap`, `confirmed_by`, `status` | `(scope_id, type)`; TTL on `expires_at` |
+| `directives` | `pack_id`, `scope_id`, `type`, `target`, `expires_at`, `cap`, `confirmed_by`, `status` | `(scope_id, type)`; index on `expires_at` |
 | `history` | `actor`, `action`, `target`, `before`, `after`, `ts`, `pack_id`, `scope_id` | `(scope_id, ts)` |
 | `packs` | `pack_id`, `slots`, `status` (`draft`/`active`), `conformance` | `pack_id` unique |
 
 The `history` collection is the audit log; it backs `GET /ledger` and the `ledger` field of `GET /why`. Route and field names do not change.
 
-Node `status`: `active` | `quarantined` | `invalidated` | `expired`. Decision `status`: `active` | `invalidated` | `replayed`.
+Node `status`: `active` | `quarantined` | `invalidated` | `expired` | `retracted` (evidence only, v0.3). Decision `status`: `active` | `invalidated` | `replayed`.
+
+**Expiry (v0.3).** No TTL indexes: a TTL delete is silent and cannot be recalled or audited. The core's expiry sweep (start of each request) sets anything past `expires_at` to `expired`, writes a `history` entry, and runs the same recall path as a retraction.
+
+**Validation (v0.3).** Every collection has a `$jsonSchema` validator (`core/db.py`, `validationLevel: moderate`) for the key fields and status enums above. Extra fields are allowed.
+
+**Provenance (v0.3).** The core writes the edges. `POST /events` creates one evidence node (kind = the pack's first node-to-node `edge_types.from`) with `support:[event_id]`, an edge `{from: event_id, to: node, rel: "provenance"}`, and an edge to every existing derived node `node_{scope}_{kind}_{key}` whose key appears among the payload's string values. Optional `payload.derives: [{kind, key, text?}]` creates new derived nodes. `POST /decisions` writes input-to-decision edges. A derived node is `active` if and only if at least one parent node is active.
 Embeddings: Voyage `voyage-4-lite`. Every query filters on `pack_id` and `scope_id`.
 
 ## 2. Pack schema (data only, 8 slots)
@@ -89,7 +96,7 @@ The compiler checks the PIN server-side (`DIRECTIVE_PIN` / `BUILDER_PIN`), sets 
 
 ## 5. Conformance checks (domain-neutral)
 
-1. `retraction_recalls_dependents`
+1. `retraction_recalls_dependents` (v0.3: and the target stays retracted over the next 3 sessions; nothing re-derives it)
 2. `independent_support_preserved`
 3. `no_cross_scope_reads`
 4. `expiry_removes_memory_and_dependents`
@@ -101,10 +108,12 @@ The compiler checks the PIN server-side (`DIRECTIVE_PIN` / `BUILDER_PIN`), sets 
 {
   "fault": "node_id",
   "actions": [
-    {"id": "node_id", "action": "delete|quarantine|invalidate|replay|preserve", "reason": "string|null"}
+    {"id": "node_id", "action": "delete|retract|quarantine|invalidate|replay|preserve", "reason": "string|null"}
   ]
 }
 ```
+`retract` (v0.3) marks the fault's upstream evidence `retracted`. `RETRACTION_POLICY=provenance|label_only` (env, default `provenance`) selects the planner; `label_only` only marks the fault and is the eval baseline. `POST /retract` may also return `policy`, `trace` and `replay_map` (additive).
+
 Rust CLI: reads `{graph, fault}` JSON on stdin, writes the plan JSON on stdout. Fixtures live in `core/fixtures/` (owner: Aniket) and are the shared tests.
 
 ## 7. LLM access
