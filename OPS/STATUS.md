@@ -5,7 +5,7 @@ States: `todo`, `doing`, `blocked`, `done`.
 
 G1 | Greatness | done | merged to main; get_llm() verified on Groq gpt-oss-120b | 14:30
 G2 | Greatness | done | catalog(200), pack, scopes, seed graph + scenario in data/; live load waits on A1 indexes (audit collection is `history`, decided 15:20) | 14:45
-G3 | Greatness | todo | GO: A2 fixtures merged (core/fixtures/plan_*.json, actions delete/retract/quarantine/preserve/invalidate/replay); next: rust/ crate, stdin {graph,fault} -> stdout plan | 
+G3 | Greatness | done | rust/recall-core: stdin {graph,fault} -> stdout plan (arg: provenance|label_only); cargo test passes on core/fixtures/plan_*.json; 78/78 identical to core/planner.py on every seed node x both policies | 15:55
 A1 | Aniket | done (merged) | core/db.py: 7 collections, $jsonSchema validators (v0.3), indexes, no TTL (expiry sweep), vector index nodes_embedding; audit collection is `history` (verified in core/db.py); seed loads | 15:30
 A2 | Aniket | done (merged) | core/planner.py + engine.py: provenance trace, evidence retract, derivation, support check, replay, RETRACTION_POLICY; fixtures core/fixtures/plan_*.json ready for G3 | 15:30
 A3 | Aniket | done (merged) | core/api.py: every mock route, same shapes, port 8001 (`uvicorn core.api:app --port 8001`); X-Compiler-Key enforced | 15:30
