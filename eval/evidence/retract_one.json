@@ -1,0 +1,106 @@
+{
+ "generated_at": "2026-11-14T20:39:03Z",
+ "langsmith": false,
+ "scenario": {
+  "scope_id": "child_7",
+  "retract": "node_child_7_interest_spooky",
+  "expect_invalidate_and_replay": [
+   "dec_child_7_02",
+   "dec_child_7_03"
+  ],
+  "expect_preserve_independent_support": [
+   "dec_child_7_08"
+  ]
+ },
+ "planner": "reference_support_rule",
+ "plan": {
+  "fault": "node_child_7_interest_spooky",
+  "actions": [
+   {
+    "id": "node_child_7_interest_spooky",
+    "action": "delete",
+    "reason": null
+   },
+   {
+    "id": "dec_child_7_02",
+    "action": "invalidate",
+    "reason": null
+   },
+   {
+    "id": "dec_child_7_02",
+    "action": "replay",
+    "reason": null
+   },
+   {
+    "id": "dec_child_7_03",
+    "action": "invalidate",
+    "reason": null
+   },
+   {
+    "id": "dec_child_7_03",
+    "action": "replay",
+    "reason": null
+   },
+   {
+    "id": "dec_child_7_08",
+    "action": "preserve",
+    "reason": "independent_support"
+   }
+  ]
+ },
+ "decision_check": {
+  "passed": true,
+  "problems": [],
+  "recalled": [
+   "dec_child_7_02",
+   "dec_child_7_03"
+  ],
+  "preserved": [
+   "dec_child_7_08"
+  ],
+  "untouched": 6
+ },
+ "slate_diff": {
+  "passed": true,
+  "problems": [],
+  "before": [
+   "vid_199",
+   "vid_000",
+   "vid_001",
+   "vid_034",
+   "vid_004",
+   "vid_012",
+   "vid_013",
+   "vid_094"
+  ],
+  "after": [
+   "vid_199",
+   "vid_000",
+   "vid_001",
+   "vid_004",
+   "vid_012",
+   "vid_013",
+   "vid_024",
+   "vid_025"
+  ],
+  "changed": [
+   "vid_034",
+   "vid_094"
+  ],
+  "preserved_with_independent_support": [
+   "vid_199"
+  ],
+  "unrelated_kept": [
+   "vid_000",
+   "vid_001",
+   "vid_004",
+   "vid_012",
+   "vid_013"
+  ],
+  "added": [
+   "vid_024",
+   "vid_025"
+  ]
+ },
+ "passed": true
+}
