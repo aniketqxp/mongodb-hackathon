@@ -1,5 +1,8 @@
 """Mock core API: canned JSON matching OPS/CONTRACT.md. Run: uvicorn mock.app:app --port 8001"""
-from fastapi import FastAPI
+import os
+
+from fastapi import FastAPI, Header
+from fastapi.responses import JSONResponse
 
 app = FastAPI(title="core-mock", version="0.1")
 
@@ -61,10 +64,19 @@ def decisions(body: dict):
 
 
 @app.post("/directives")
-def directives(body: dict):
+def directives(body: dict, x_compiler_key: str | None = Header(default=None)):
+    secret = os.getenv("COMPILER_SHARED_SECRET")
+    if secret and x_compiler_key != secret:
+        return JSONResponse(status_code=403, content={"error": {"code": "forbidden", "detail": "compiler key required"}})
     if not body.get("directive", {}).get("confirmed_by"):
-        return {"error": {"code": "not_confirmed", "detail": "directive needs confirmed_by"}}
+        return JSONResponse(status_code=422, content={"error": {"code": "not_confirmed", "detail": "directive needs confirmed_by"}})
     return {"directive_id": "dir_mock_1", "status": "active"}
+
+
+@app.get("/directives")
+def list_directives(pack_id: str = "", scope_id: str = "", active_only: bool = True):
+    return {"directives": [{"directive_id": "dir_mock_1", "type": "suppress", "target": {"kind": "tag", "value": "scary"},
+                            "expires_at": "2026-11-21T18:00:00Z", "cap": None, "confirmed_by": "pin", "status": "active"}]}
 
 
 @app.post("/retract")
