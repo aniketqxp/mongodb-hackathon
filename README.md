@@ -33,7 +33,7 @@ flowchart LR
   C --> V{"Validate + PIN confirm"}
   V --> API["Core API"]
   H["Harness: gate, slates, UI"] --> API
-  API --> M[("MongoDB Atlas<br/>events, nodes, edges,<br/>decisions, directives, ledger")]
+  API --> M[("MongoDB Atlas<br/>events, nodes, edges,<br/>decisions, directives, history")]
   M --> R["Recall: trace, support check,<br/>plan, selective replay"]
 ```
 

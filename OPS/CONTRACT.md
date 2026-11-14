@@ -1,6 +1,7 @@
 # CONTRACT v0.2 (changes via PR from Greatness)
 
-Version: 0.2
+Version: 0.2.1
+Changes in 0.2.1: the audit collection is named `history` (matches the Atlas sandbox); the API keeps `GET /ledger` and the `ledger` field in `/why` responses.
 Changes since 0.1: scope profile, target vocabulary, GET /directives, compiler routes (port 8002), directive trust header, 422 for not_confirmed.
 All bodies are JSON. IDs are strings. Timestamps are ISO 8601 UTC. Every request carries `pack_id` and `scope_id`.
 The core has no domain words: domain meaning lives only in pack data.
@@ -14,8 +15,10 @@ The core has no domain words: domain meaning lives only in pack data.
 | `edges` | `pack_id`, `scope_id`, `from`, `to`, `rel` | `from`, `to` |
 | `decisions` | `pack_id`, `scope_id`, `inputs[]`, `output`, `status`, `replay_of`, `ts` | `(scope_id, ts)` |
 | `directives` | `pack_id`, `scope_id`, `type`, `target`, `expires_at`, `cap`, `confirmed_by`, `status` | `(scope_id, type)`; TTL on `expires_at` |
-| `ledger` | `actor`, `action`, `target`, `before`, `after`, `ts`, `pack_id`, `scope_id` | `(scope_id, ts)` |
+| `history` | `actor`, `action`, `target`, `before`, `after`, `ts`, `pack_id`, `scope_id` | `(scope_id, ts)` |
 | `packs` | `pack_id`, `slots`, `status` (`draft`/`active`), `conformance` | `pack_id` unique |
+
+The `history` collection is the audit log; it backs `GET /ledger` and the `ledger` field of `GET /why`. Route and field names do not change.
 
 Node `status`: `active` | `quarantined` | `invalidated` | `expired`. Decision `status`: `active` | `invalidated` | `replayed`.
 Embeddings: Voyage `voyage-4-lite`. Every query filters on `pack_id` and `scope_id`.
