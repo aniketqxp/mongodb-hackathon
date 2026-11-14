@@ -1,0 +1,99 @@
+# CONTRACT v0 (frozen at ~2:00 PM; changes via PR from Greatness)
+
+Version: 0.1
+All bodies are JSON. IDs are strings. Timestamps are ISO 8601 UTC. Every request carries `pack_id` and `scope_id`.
+The core has no domain words: domain meaning lives only in pack data.
+
+## 1. Collections (MongoDB Atlas)
+
+| Collection | Key fields | Indexes |
+| --- | --- | --- |
+| `events` | `pack_id`, `scope_id`, `type`, `payload`, `ts`, `source` | `(pack_id, scope_id, ts)` |
+| `nodes` | `pack_id`, `scope_id`, `kind`, `text`, `embedding`, `status`, `expires_at`, `support[]` | Vector Search on `embedding` (filter: `pack_id`, `scope_id`); TTL on `expires_at` |
+| `edges` | `pack_id`, `scope_id`, `from`, `to`, `rel` | `from`, `to` |
+| `decisions` | `pack_id`, `scope_id`, `inputs[]`, `output`, `status`, `replay_of`, `ts` | `(scope_id, ts)` |
+| `directives` | `pack_id`, `scope_id`, `type`, `target`, `expires_at`, `cap`, `confirmed_by`, `status` | `(scope_id, type)`; TTL on `expires_at` |
+| `ledger` | `actor`, `action`, `target`, `before`, `after`, `ts`, `pack_id`, `scope_id` | `(scope_id, ts)` |
+| `packs` | `pack_id`, `slots`, `status` (`draft`/`active`), `conformance` | `pack_id` unique |
+
+Node `status`: `active` | `quarantined` | `invalidated` | `expired`. Decision `status`: `active` | `invalidated` | `replayed`.
+Embeddings: Voyage `voyage-4-lite`. Every query filters on `pack_id` and `scope_id`.
+
+## 2. Pack schema (data only, 8 slots)
+
+```json
+{
+  "pack_id": "string",
+  "scope_field": "string",
+  "node_types": ["string"],
+  "edge_types": [{"rel": "string", "from": "node_type", "to": "node_type|decision"}],
+  "gate": [{"field": "string", "op": "eq|ne|gt|gte|lt|lte|in|not_in", "value": "any", "value_from_scope": "string|null"}],
+  "decay": {"kind": "none|ttl|linear", "seconds": 0},
+  "directive_vocab": ["suppress", "prioritize", "retract"],
+  "labels": {"item": "string", "scope": "string", "directive": "string"}
+}
+```
+A pack activates only when conformance returns 5/5 (see section 5).
+
+## 3. Directive schema (three primitives)
+
+```json
+{
+  "type": "suppress|prioritize|retract",
+  "target": {"kind": "string", "value": "string"},
+  "expires_at": "ISO8601|null",
+  "cap": 0,
+  "confirmed_by": "pin|builder|null",
+  "source_text": "string"
+}
+```
+- `suppress` requires `expires_at`. `prioritize` requires `cap` (max boosted items per slate). `retract` targets one node or directive id.
+- Precedence when they collide: **gate > block (suppress) > boost (prioritize)**.
+- A directive is stored only after `confirmed_by` is set. Validation rejects extra fields, missing fields, unknown targets.
+
+## 4. Routes
+
+| Route | Body in | Body out |
+| --- | --- | --- |
+| `POST /packs` | `{pack}` | `{pack_id, status:"draft"}` |
+| `POST /packs/{id}/conformance` | `{}` | `{passed:int, total:5, checks:[{id,name,passed,detail}]}` |
+| `POST /packs/{id}/activate` | `{}` | `{pack_id, status:"active"}` or error `conformance_failed` |
+| `POST /events` | `{pack_id, scope_id, type, payload}` | `{admitted:bool, reason:string|null, node_id:string|null}` |
+| `POST /memory/search` | `{pack_id, scope_id, query, k}` | `{results:[{node_id,text,score,kind}]}` |
+| `POST /decisions` | `{pack_id, scope_id, inputs:[node_id], output}` | `{decision_id}` (writes edges) |
+| `POST /directives` | `{pack_id, scope_id, directive}` | `{directive_id, status}` or error `not_confirmed` |
+| `POST /retract` | `{pack_id, scope_id, target_id, reason}` | `{plan, replayed:[decision_id]}` |
+| `GET /why/{decision_id}` | query: `pack_id, scope_id` | `{decision, provenance:[...], ledger:[...]}` |
+| `GET /diff` | query: `pack_id, scope_id, retract` | `{before:[...], after:[...], changed:[...], preserved:[...]}` |
+| `GET /ledger` | query: `pack_id, scope_id, limit` | `{entries:[...]}` |
+
+A gated event returns HTTP 200 with `admitted:false`. Nothing is written to `nodes` or `edges`.
+Errors: HTTP 4xx/5xx with `{"error": {"code": "string", "detail": "string"}}`. Stable codes: `bad_request`, `not_found`, `conformance_failed`, `not_confirmed`, `scope_violation`, `internal`.
+
+## 5. Conformance checks (domain-neutral)
+
+1. `retraction_recalls_dependents`
+2. `independent_support_preserved`
+3. `no_cross_scope_reads`
+4. `expiry_removes_memory_and_dependents`
+5. `gated_content_never_enters_memory`
+
+## 6. Retraction plan JSON (shared by Python and Rust planners)
+
+```json
+{
+  "fault": "node_id",
+  "actions": [
+    {"id": "node_id", "action": "delete|quarantine|invalidate|replay|preserve", "reason": "string|null"}
+  ]
+}
+```
+Rust CLI: reads `{graph, fault}` JSON on stdin, writes the plan JSON on stdout. Fixtures live in `core/fixtures/` (owner: Aniket) and are the shared tests.
+
+## 7. LLM access
+
+`shared/llm.py::get_llm()` returns a LangChain chat model from `LLM_PROVIDER` (`groq`|`openrouter`), `LLM_MODEL` and the matching key. Compilers must use structured output and validate against sections 2 and 3.
+
+## 8. Mock API
+
+`mock/app.py` serves canned responses for every route above on port 8001. Real API (A3) must match these shapes. Run: `uvicorn mock.app:app --port 8001`.
