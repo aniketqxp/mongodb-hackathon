@@ -56,3 +56,11 @@ python -m compiler.conformance --pack data/pack_video.json --core http://localho
 Returns the contract shape `{passed, total: 5, checks: [{id, name, passed, detail}]}`. For core (A3): `POST /packs/{id}/conformance` can call `run_conformance(pack, Core(<own base url>))`.
 
 `compiler/tests/fake_core.py` is a correct in-memory reference core. Its `broken` flags (`lazy_retract`, `greedy_retract`, `leaky_search`, `no_expiry`, `no_gate`) each fail exactly their matching check, for both packs. Against the canned mock the suite reports 1/5, as it should.
+
+## Stage demo: pack from a sentence
+```
+set -a; source .env; set +a
+python -m compiler.demo_pack "A team memory assistant that forgets notes after 30 days"
+python -m compiler.demo_pack --cached "..."    # no LLM call, closest cached pack (safe fallback on stage)
+```
+Steps: compile (and say whether the pack came from the LLM or the cache), `POST /packs`, `/packs/{id}/conformance` (prints all 5 checks), then `/activate`. Core refuses activation below 5/5. Re-running an already active pack reports it as active rather than failing. Core comes from `CORE_API_URL` (default `:8001`).
