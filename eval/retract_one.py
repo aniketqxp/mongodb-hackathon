@@ -17,7 +17,7 @@ import json
 import sys
 from pathlib import Path
 
-from eval.tracing import traceable, write_evidence
+from eval.tracing import enable_for_run, traceable, write_evidence
 
 REPO = Path(__file__).resolve().parents[1]
 RECALLED = {"invalidate", "replay"}
@@ -49,6 +49,14 @@ def live_plan(core_url: str, pack_id: str, scope_id: str, fault: str) -> dict:
                    json={"pack_id": pack_id, "scope_id": scope_id, "target_id": fault, "reason": "eval:retract_one"}, timeout=30)
     r.raise_for_status()
     return r.json()["plan"]
+
+
+def live_diff(core_url: str, pack_id: str, scope_id: str, fault: str) -> dict:
+    """Core's own GET /diff for the same retraction, recorded as evidence next to ours."""
+    import httpx
+
+    r = httpx.get(core_url.rstrip("/") + "/diff", params={"pack_id": pack_id, "scope_id": scope_id, "retract": fault}, timeout=30)
+    return r.json() if r.status_code < 400 else {"error": r.status_code}
 
 
 def check_plan(plan: dict, graph: dict, scn: dict) -> dict:
@@ -109,20 +117,26 @@ def slate_diff(scope_id: str, fault: str) -> dict:
 def run(core_url: str | None = None) -> dict:
     graph, scn = _load("graph.json"), _load("scenario.json")
     pack_id = _load("pack_video.json")["pack_id"]
+    core_diff = None
     if core_url:
         plan, source = live_plan(core_url, pack_id, scn["scope_id"], scn["retract"]), "core"
+        core_diff = live_diff(core_url, pack_id, scn["scope_id"], scn["retract"])
     else:
         plan, source = reference_plan(graph, scn["scope_id"], scn["retract"]), "reference_support_rule"
     out = {"scenario": scn, "planner": source, "plan": plan,
            "decision_check": check_plan(plan, graph, scn), "slate_diff": slate_diff(scn["scope_id"], scn["retract"])}
+    if core_diff is not None:
+        out["core_diff"] = core_diff
     out["passed"] = out["decision_check"]["passed"] and out["slate_diff"]["passed"]
     return out
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--core", default=None)
+    ap.add_argument("--core", default=None, help="core base URL, e.g. http://localhost:8001")
+    ap.add_argument("--trace", action="store_true", help="send this run to LangSmith (needs LANGSMITH_API_KEY)")
     args = ap.parse_args()
+    enable_for_run(args.trace)
     out = run(args.core)
     path = write_evidence("retract_one", out)
     dc, sd = out["decision_check"], out["slate_diff"]

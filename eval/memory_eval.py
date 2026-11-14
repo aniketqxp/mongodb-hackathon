@@ -20,7 +20,7 @@ from pathlib import Path
 
 from compiler.directive import DirectiveError, compile_directive
 from compiler.packs import load_bundle
-from eval.tracing import traceable, upload_dataset, write_evidence
+from eval.tracing import enable_for_run, traceable, upload_dataset, write_evidence
 
 DS = json.loads((Path(__file__).parent / "directive_prompts.json").read_text())
 SIZE = 8
@@ -112,7 +112,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--pause", type=float, default=2.5)
+    ap.add_argument("--trace", action="store_true", help="send this run to LangSmith (needs LANGSMITH_API_KEY)")
     args = ap.parse_args()
+    enable_for_run(args.trace)
     out = run(args.live, args.pause)
     path = write_evidence("memory_eval_live" if args.live else "memory_eval", out)
     s = out["summary"]

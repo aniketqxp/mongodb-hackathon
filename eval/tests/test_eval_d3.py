@@ -59,3 +59,20 @@ def test_rejected_prompts_leave_slate_unchanged(me):
     rej = [r for r in me["rows"] if r["outcome"]["kind"] == "rejected"]
     assert len(rej) == 7
     assert all(r["with_memory"]["slate"] == r["with_memory"]["baseline"] for r in rej)
+
+
+def test_trace_flag_is_noop_without_key(monkeypatch):
+    from eval import tracing
+
+    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
+    monkeypatch.setenv("LANGSMITH_TRACING", "false")
+    assert tracing.enable_for_run(True) is False
+    assert tracing.enabled() is False
+
+
+def test_trace_flag_turns_on_with_key(monkeypatch):
+    from eval import tracing
+
+    monkeypatch.setenv("LANGSMITH_API_KEY", "x")
+    monkeypatch.setenv("LANGSMITH_TRACING", "false")
+    assert tracing.enable_for_run(True) is True

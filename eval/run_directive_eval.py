@@ -12,6 +12,7 @@ from pathlib import Path
 
 from compiler.directive import DirectiveError, compile_directive
 from compiler.packs import load_bundle
+from eval.tracing import enable_for_run
 
 DS = Path(__file__).parent / "directive_prompts.json"
 
@@ -26,8 +27,10 @@ def score(row, got) -> bool:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--min", type=int, default=0)
-    ap.add_argument("--pause", type=float, default=0.3, help="seconds between calls (free-tier rate limits)")
+    ap.add_argument("--pause", type=float, default=2.5, help="seconds between calls (free-tier rate limits)")
+    ap.add_argument("--trace", action="store_true", help="send this run to LangSmith (needs LANGSMITH_API_KEY)")
     args = ap.parse_args()
+    enable_for_run(args.trace)
     ds = json.loads(DS.read_text())
     b = load_bundle(ds["pack_id"])
     ok, misses = 0, []

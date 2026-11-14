@@ -1,7 +1,8 @@
 """Optional LangSmith tracing. Everything works (and writes local evidence) without a key.
 
-Enabled only when LANGSMITH_TRACING=true and LANGSMITH_API_KEY is set. LangChain LLM calls made
-through shared/llm.py are traced automatically by the same env vars.
+Keep LANGSMITH_TRACING=false in .env (free-tier quota). D3 commands take --trace, which turns tracing
+on for that process only, and only when LANGSMITH_API_KEY is set. LangChain LLM calls made through
+shared/llm.py are then traced automatically too.
 """
 from __future__ import annotations
 
@@ -11,7 +12,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 EVIDENCE = Path(__file__).parent / "evidence"
-PROJECT = os.getenv("LANGSMITH_PROJECT", "governed-memory-eval")
+PROJECT = os.getenv("LANGSMITH_PROJECT", "memory-governance-eval")
+
+
+def enable_for_run(on: bool) -> bool:
+    """Called by --trace before any LLM call. Returns whether tracing is actually on."""
+    if on:
+        if not os.getenv("LANGSMITH_API_KEY"):
+            print("--trace ignored: LANGSMITH_API_KEY is not set")
+            return False
+        os.environ["LANGSMITH_TRACING"] = "true"
+        os.environ.setdefault("LANGSMITH_PROJECT", PROJECT)
+    return enabled()
 
 
 def enabled() -> bool:
@@ -19,15 +31,24 @@ def enabled() -> bool:
 
 
 def traceable(name: str):
-    """langsmith.traceable when enabled, else a no-op decorator."""
-    if enabled():
-        try:
-            from langsmith import traceable as _t
+    """langsmith.traceable when tracing is on at call time, else a plain call."""
+    import functools
 
-            return _t(name=name, project_name=PROJECT)
-        except ImportError:
-            pass
-    return lambda fn: fn
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(*a, **kw):
+            if enabled():
+                try:
+                    from langsmith import traceable as _t
+
+                    return _t(name=name, project_name=os.getenv("LANGSMITH_PROJECT", PROJECT))(fn)(*a, **kw)
+                except ImportError:
+                    pass
+            return fn(*a, **kw)
+
+        return wrapper
+
+    return deco
 
 
 def write_evidence(name: str, payload: dict) -> Path:
