@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T20:41:17Z",
- "langsmith": false,
+ "generated_at": "2026-11-14T21:04:07Z",
+ "langsmith": true,
  "mode": "live",
  "n": 25,
  "summary": {
@@ -27,7 +27,7 @@
       "kind": "topic",
       "value": "spooky"
      },
-     "expires_at": "2026-11-21T20:39:48Z",
+     "expires_at": "2026-11-21T21:02:20Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "No spooky videos for a week"
@@ -77,7 +77,7 @@
       "kind": "tag",
       "value": "loud"
      },
-     "expires_at": "2026-11-15T20:39:52Z",
+     "expires_at": "2026-11-15T21:02:24Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "Hide anything loud until tomorrow"
@@ -127,7 +127,7 @@
       "kind": "topic",
       "value": "gaming"
      },
-     "expires_at": "2026-11-17T20:39:56Z",
+     "expires_at": "2026-11-17T21:02:28Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "Pause gaming videos for 3 days, exams are coming"
@@ -177,7 +177,7 @@
       "kind": "topic",
       "value": "action"
      },
-     "expires_at": "2026-11-16T20:39:59Z",
+     "expires_at": "2026-11-16T21:02:31Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "no action stuff this weekend"
@@ -227,7 +227,7 @@
       "kind": "topic",
       "value": "cooking"
      },
-     "expires_at": "2026-11-28T20:40:02Z",
+     "expires_at": "2026-11-28T21:02:36Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "Take a break from cooking videos for two weeks"
@@ -277,7 +277,7 @@
       "kind": "tag",
       "value": "dark"
      },
-     "expires_at": "2026-11-15T08:40:06Z",
+     "expires_at": "2026-11-15T09:02:40Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "Nothing dark for the next 12 hours"
@@ -327,7 +327,7 @@
       "kind": "topic",
       "value": "comedy"
      },
-     "expires_at": "2026-12-14T20:40:09Z",
+     "expires_at": "2026-12-14T21:02:43Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "Skip comedy for a month"
@@ -377,7 +377,7 @@
       "kind": "topic",
       "value": "music"
      },
-     "expires_at": "2026-11-14T21:40:12Z",
+     "expires_at": "2026-11-14T22:02:48Z",
      "cap": 0,
      "confirmed_by": null,
      "source_text": "mute music videos for one hour"
@@ -586,7 +586,7 @@
       "kind": "topic",
       "value": "history"
      },
-     "expires_at": "2026-11-19T20:40:26Z",
+     "expires_at": "2026-11-19T21:03:03Z",
      "cap": 2,
      "confirmed_by": null,
      "source_text": "Prioritise history for the next 5 days, at most 2"
@@ -946,8 +946,8 @@
    "text": "She's old enough now, allow 13+ videos",
    "outcome": {
     "kind": "rejected",
-    "code": "not_found",
-    "detail": "retract target 'none' not in this scope"
+    "code": "bad_request",
+    "detail": "directive: Value error, retract target.kind must be one of ('node', 'directive')"
    },
    "with_memory": {
     "gate_respected": true,
@@ -1168,23 +1168,32 @@
    "id": "x06",
    "text": "Hide dinosaur videos for a week",
    "outcome": {
-    "kind": "rejected",
-    "code": "bad_request",
-    "detail": "unknown_target: topic='none'"
+    "kind": "directive",
+    "directive": {
+     "type": "suppress",
+     "target": {
+      "kind": "topic",
+      "value": "animals"
+     },
+     "expires_at": "2026-11-21T21:04:01Z",
+     "cap": 0,
+     "confirmed_by": null,
+     "source_text": "Hide dinosaur videos for a week"
+    }
    },
    "with_memory": {
     "gate_respected": true,
     "effect_correct": true,
     "personalized": 1.0,
     "slate": [
-     "vid_199",
-     "vid_000",
      "vid_001",
      "vid_034",
      "vid_004",
-     "vid_012",
      "vid_013",
-     "vid_094"
+     "vid_094",
+     "vid_016",
+     "vid_025",
+     "vid_106"
     ],
     "baseline": [
      "vid_199",
